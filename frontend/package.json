@@ -1,0 +1,8 @@
+{
+	"name": "BookExchange webpage",
+  "dependencies": {
+    "bootstrap": "^5.0.1",
+    "node": "^16.1.0",
+    "react": "^17.0.2"
+  }
+}
