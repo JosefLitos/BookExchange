@@ -1,0 +1,19 @@
+{
+	"name": "BookExchange",
+	"version": "1.0.0",
+	"description": "Offers book selling peer-to-peer communication.",
+	"author": "Josef Litoš",
+	"main": "app.js",
+	"scripts": {
+		"start": "node app.js"
+	},
+	"dependencies": {
+		"bcrypt": "^5.0.1",
+		"cookie-parser": "^1.4.5",
+		"express": "^4.17.1",
+		"express-session": "^1.17.2",
+		"mysql": "^2.18.1",
+		"node": "^16.1.0",
+		"session-file-store": "^1.5.0"
+	}
+}
