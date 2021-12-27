@@ -1,6 +1,6 @@
 {
 	"user": "mysql",
-	"password": "BE",
+	"password": "besql",
 	"server": "localhost",
 	"port": 3306,
 	"database": "book_exchange"
