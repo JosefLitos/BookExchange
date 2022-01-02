@@ -1,10 +1,11 @@
-import React from 'react'
+import React from "react"
 
 class Book extends React.Component {
 	constructor(props) {
 		super(props)
 		this.setState(props.data)
 	}
+
 	render() {
 		return (
 			<div>

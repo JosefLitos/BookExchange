@@ -1,40 +1,31 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import axios from "axios"
 import "./index.css"
+import App from "./App"
+import { Provider } from "react-redux"
+import { createStore, combineReducers, compose, applyMiddleware } from "redux"
+import thunk from "redux-thunk"
 
-import Book from "./book.js"
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
-const request = (path) => {
-	axios.get(`127.0.0.1:5000${path}`).then((response) => response.data)
-}
-
-const searchUpdate = (event) => {
-	if (event.key == "Enter" || event.keyCode == 13) {
-		let bookList = document.getElementById("bookList")
-		bookList.innerHTML = null
-		request(`/books?q=${document.getElementById("search").value}`).then((books) =>
-			books.map((book) => bookList.appendChild(<Book data={book} />))
-		)
-	}
-}
+// user variable is used in Header to determine login state
+const store = createStore(
+	combineReducers({
+		user: (state = null, action) => {
+			switch (action.type) {
+				case "GET_USER":
+					return action.payload || false
+				default:
+					return state
+			}
+		},
+	}),
+	composeEnhancers(applyMiddleware(thunk))
+)
 
 ReactDOM.render(
-	<React.StrictMode>
-		<div>
-			<input id="search" type="text" placeholder="Vyhledejte knihu" onKeyUp={searchUpdate} />
-		</div>
-		<section>
-			<ul id="bookList">
-				{request("/books").then((data) =>
-					data.map((book) => (
-						<li key={book.id}>
-							<Book data={book} />
-						</li>
-					))
-				)}
-			</ul>
-		</section>
-	</React.StrictMode>,
+	<Provider store={store}>
+		<App />
+	</Provider>,
 	document.getElementById("root")
 )

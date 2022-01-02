@@ -1,0 +1,15 @@
+h3 {
+	padding: 5px;
+	margin: 5px;
+}
+ul {
+	padding: 0;
+	margin: 10px;
+}
+li {
+	float: left;
+	clear: both;
+	padding: 5px;
+	list-style-type: none;
+	margin: 2px;
+}
