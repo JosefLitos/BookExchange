@@ -17,7 +17,7 @@ function create(dbName) {
 			try {
 				conn = await pool.getConnection()
 				const res = await conn.query(query, params)
-				if (res.meta) res.meta = undefined
+				if (res.meta) delete res.meta
 				if (!nodebug) console.log("SQL:", query, "\nresponse:", res)
 				resolve(res)
 			} catch (err) {

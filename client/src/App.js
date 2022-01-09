@@ -4,6 +4,8 @@ import { connect } from "react-redux"
 import axios from "axios"
 import Header from "./components/Header"
 import BookList from "./components/BookList"
+import BookDetail from "./components/BookDetail"
+import BookCommit from "./components/BookCommit"
 import Profile from "./components/Profile"
 
 function App(props) {
@@ -11,7 +13,7 @@ function App(props) {
 	return (
 		<BrowserRouter>
 			<Header />
-			<Route exact path="/" component={BookList} />
+			<Route path="/" component={BookList} />
 			<Route path="/user" component={Profile} />
 			<Route path="/book" component={BookDetail} />
 			<Route path="/commit" component={BookCommit} />
@@ -23,7 +25,7 @@ function App(props) {
 export default connect(null, (dispatch) => ({
 	fetch_user: () =>
 		dispatch((dispatch) =>
-			axios // connect to backend and get information about current sesssion's user
+			axios // connect to backend to decrypt the user cookie and receive contents
 				.get("/api/user/info")
 				.then((res) => dispatch({ type: "GET_USER", payload: res.data }))
 		),

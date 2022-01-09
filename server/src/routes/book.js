@@ -2,8 +2,8 @@ const book = require("../services/book")
 
 module.exports = (app) => {
 	app.get("/api/books", (req, res) => {
-		if (!req.body.q) book.all().then((result) => res.send(result))
-		else book.search(req.body.q).then((result) => res.send(result))
+		if (!req.query.q) book.all().then((result) => res.send(result))
+			else book.search(req.query.q).then((result) => res.send(result))
 	})
 
 	//app.use(express.static("public"))
@@ -24,20 +24,23 @@ module.exports = (app) => {
 	})
 
 	app.post("/api/book", (req, res) => {
-		book.add(req.body, req.user).then((result) => {
-			if (result.affectedRows != 1) res.status(400).send({ success: false })
+		console.log("/api/book:")
+		console.log(req.body)
+		
+		/*book.add(req.body, req.user).then((result) => {
+			if (result.affectedRows != 0) res.status(400).send({ success: false })
 			else res.send({ success: true })
-		})
+		})*/
 	})
 
-	app.patch("/api/book/:id", auth, (req, res) => {
+	app.patch("/api/book/:id", (req, res) => {
 		book.update(req.params.id, req.body, req.user).then((result) => {
 			if (!result) res.status(400).send({ success: false })
 			else res.send({ success: true })
 		})
 	})
 
-	app.delete("/api/book/:id", auth, (req, res) => {
+	app.delete("/api/book/:id", (req, res) => {
 		book.remove(req.params.id, req.user).then((result) => {
 			if (result.affectedRows != 1) res.status(400).send({ success: false })
 			else res.send({ success: true })

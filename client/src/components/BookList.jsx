@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react"
+import { connect } from "react-redux"
+import { Link } from "react-router-dom"
 import axios from "axios"
-import Book from "./Book.js"
+import Book from "./Book"
 
-function BookList() {
+function BookList(props) {
 	const searchUpdate = (event) => {
-		if (event.key == "Enter" || event.keyCode == 13) {
+		if (event.key === "Enter" || event.keyCode === 13) {
 			let bookList = document.getElementById("BookList")
 			bookList.innerHTML = null
 			axios
@@ -26,10 +28,16 @@ function BookList() {
 	return (
 		<section title="BookList">
 			<input id="search" type="text" placeholder="Vyhledejte knihu" onKeyUp={searchUpdate} />
-			{books == null || books.length == 0 ? (
+			{books == null || books.length === 0 ? (
 				<p>
 					Buďte první, kdo nabídne učebnici.
-					<Link to="/book">Přidat knihu</Link>
+					{props.user ? (
+						<Link to="/book">
+							<button>Přidat knihu</button>
+						</Link>
+					) : (
+						<a href="/api/user/login">Přihlásit/Registrovat</a>
+					)}
 				</p>
 			) : (
 				<ul id="BookList">
@@ -44,4 +52,4 @@ function BookList() {
 	)
 }
 
-export default BookList
+export default connect((state) => ({ user: state.user }))(BookList)

@@ -2,8 +2,13 @@ const user = require("./user")
 const passport = require("passport")
 const GooleStrategy = require("passport-google-oauth20").Strategy
 
-passport.serializeUser((user, done) => done(null, { id: user.id, email: user.email }))
-passport.deserializeUser((user, done) => user.login(user).then((res) => done(null, res)))
+passport.serializeUser((profile, done) => done(null, { id: profile.id, email: profile.email }))
+passport.deserializeUser((profile, done) => {
+	console.log("INSIDE")
+	if (profile && profile.id && profile.email && profile.icon && profile.name) done(null, profile)
+	else user.login(profile).then((res) => done(res ? null : "User data error", res))
+}
+)
 passport.use(
 	new GooleStrategy(
 		{

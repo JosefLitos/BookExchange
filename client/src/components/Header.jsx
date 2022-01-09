@@ -30,7 +30,7 @@ function Header(props) {
 						</li>
 						<li>
 							<Link to="/user">
-								<img className="circle" src={props.user.icon} alt="Profil" />
+								<img className="circle" src={props.user.icon} alt="Profil" width="40" style={{verticalAlign: "middle"}} />
 							</Link>
 						</li>
 					</React.Fragment>

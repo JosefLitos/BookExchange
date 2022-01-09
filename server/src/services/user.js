@@ -1,6 +1,7 @@
-const query = require("./sql")(process.env.MYSQL_AUTH)
+const query = require("./sql")(process.env.MYSQL_DB)
 
 async function login(user) {
+	if (!user || !user.id ) return null
 	let users = await query("SELECT * FROM user WHERE id=? AND email=?;", [user.id, user.email])
 	if (users.length > 0) {
 		if (users[0].name != user.name && user.name) {
@@ -9,7 +10,7 @@ async function login(user) {
 			else query("UPDATE user SET name=? WHERE id=?;", [user.name, user.id])
 		} else if (users[0].icon != user.icon && user.icon)
 			query("UPDATE user SET name=? WHERE id=?;", [user.icon, user.id])
-		return user
+		return users[0]
 	} else if (
 		// users that matched one parameter of other users would create partial duplicates
 		(await query("SELECT * FROM user WHERE id=? OR email=?;", [user.id, user.email])).length > 0
