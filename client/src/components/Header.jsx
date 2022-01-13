@@ -23,14 +23,20 @@ function Header(props) {
 				return (
 					<React.Fragment>
 						<li>
-							<Link to="/book">Přidat knihu</Link>
+							<Link to="/commit">Přidat knihu</Link>
 						</li>
 						<li>
 							<a href="/api/user/logout">Odhlásit</a>
 						</li>
 						<li>
 							<Link to="/user">
-								<img className="circle" src={props.user.icon} alt="Profil" width="40" style={{verticalAlign: "middle"}} />
+								<img
+									className="circle"
+									src={props.user.icon}
+									alt="Profil"
+									width="40"
+									style={{ verticalAlign: "middle" }}
+								/>
 							</Link>
 						</li>
 					</React.Fragment>
@@ -41,6 +47,11 @@ function Header(props) {
 	return (
 		<nav>
 			<div className="nav-wrapper green darken-2">
+				<img
+					src={process.env.PUBLIC_URL + "/img/logomini.png"}
+					className="left-center"
+					style={{ padding: "2px", maxHeight: "100%" }}
+				/>
 				<Link to={props.user ? "/user" : "/"} className="brand-logo">
 					Bazar Učebnic GA - BUG
 				</Link>

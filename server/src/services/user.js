@@ -1,7 +1,7 @@
 const query = require("./sql")(process.env.MYSQL_DB)
 
 async function login(user) {
-	if (!user || !user.id ) return null
+	if (!user || !user.id || !user.email) return null
 	let users = await query("SELECT * FROM user WHERE id=? AND email=?;", [user.id, user.email])
 	if (users.length > 0) {
 		if (users[0].name != user.name && user.name) {
@@ -29,9 +29,10 @@ async function login(user) {
 }
 
 async function remove(user) {
-	let res = query("DELETE FROM user WHERE id=? AND email=?;", [user.id, user.email])
+	if (!user || !user.id || !user.email) return null
+	let res = await query("DELETE FROM user WHERE id=? AND email=?;", [user.id, user.email])
 	if (res.affectedRows != 1)
-		return console.log(`SQL - Error when deleting user ${email}, response: ${res}`)
+		return console.log(`SQL - Error when deleting user ${user.email}, response: ${res}`)
 	return true
 }
 

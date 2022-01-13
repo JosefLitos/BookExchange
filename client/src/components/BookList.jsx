@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { connect } from "react-redux"
 import { Link } from "react-router-dom"
 import axios from "axios"
@@ -26,13 +26,13 @@ function BookList(props) {
 	)
 
 	return (
-		<section title="BookList">
+		<div title="BookList">
 			<input id="search" type="text" placeholder="Vyhledejte knihu" onKeyUp={searchUpdate} />
 			{books == null || books.length === 0 ? (
 				<p>
 					Buďte první, kdo nabídne učebnici.
 					{props.user ? (
-						<Link to="/book">
+						<Link to="/commit">
 							<button>Přidat knihu</button>
 						</Link>
 					) : (
@@ -48,7 +48,7 @@ function BookList(props) {
 					))}
 				</ul>
 			)}
-		</section>
+		</div>
 	)
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { BrowserRouter, Route } from "react-router-dom"
+import { Route, Routes } from "react-router-dom"
 import { connect } from "react-redux"
 import axios from "axios"
 import Header from "./components/Header"
@@ -11,13 +11,15 @@ import Profile from "./components/Profile"
 function App(props) {
 	useEffect(() => props.fetch_user(), [])
 	return (
-		<BrowserRouter>
+		<div>
 			<Header />
-			<Route path="/" component={BookList} />
-			<Route path="/user" component={Profile} />
-			<Route path="/book" component={BookDetail} />
-			<Route path="/commit" component={BookCommit} />
-		</BrowserRouter>
+			<Routes>
+				<Route path="/" element={<BookList />} />
+				<Route path="/user" element={<Profile />} />
+				<Route path="/book" element={<BookDetail />} />
+				<Route path="/commit" element={<BookCommit />} />
+			</Routes>
+		</div>
 	)
 }
 
