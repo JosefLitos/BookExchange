@@ -10,8 +10,8 @@ async function get(id) {
 
 function add(book, user) {
 	return query(
-		"INSERT INTO book (owner_id, cost, name, author, year, description) VALUES (?, ?, ?, ?, ?, ?);",
-		[user.id, book.cost, book.name, book.author, book.year, book.description]
+		"INSERT INTO book (owner_id, name, author, year, cost, description) VALUES (?, ?, ?, ?, ?, ?);",
+		[user.id, book.name, book.author, book.year, book.cost, book.description]
 	)
 }
 
@@ -29,8 +29,9 @@ async function update(bookId, updated, user) {
 	])
 }
 
-function remove(bookId, owner) {
-	return query("DELETE FROM book WHERE id=? AND owner_id=?;", [bookId, owner.id])
+async function remove(bookId, owner) {
+	let user = (await query("SELECT * FROM user WHERE id=? AND email=?;", [owner.id, owner.email]))[0]
+	if (user) return await query("DELETE FROM book WHERE id=?;", [bookId])
 }
 
 function search(text) {
@@ -55,7 +56,7 @@ function getRequests(bookId) {
 }
 
 function removeRequest(requestId) {
-	return query("DELETE FROM request WHERE id=?;", [requestId]).then(res=>res.affectedRows == 1)
+	return query("DELETE FROM request WHERE id=?;", [requestId]).then((res) => res.affectedRows == 1)
 }
 
 function removeOldRequests(timestamp) {

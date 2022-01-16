@@ -15,19 +15,7 @@ module.exports = (app) => {
 
 	app.use(passport.initialize())
 	app.use(passport.session())
-
-	/*
-const session = require("express-session")
-const filestore = require("session-file-store")(session)
-app.use(
-	session({
-		name: "session-id",
-		secret: "your 🖕 shall 🧂 the 🔒!",
-		saveUninitialized: false,
-		resave: false,
-		store: new filestore(),
-	})
-)*/
+	app.use(require("body-parser").json({ extended: true }))
 
 	require("./routes/book")(app)
 	require("./routes/user")(app)

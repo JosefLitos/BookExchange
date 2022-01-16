@@ -5,7 +5,7 @@ import App from "./App"
 import { Provider } from "react-redux"
 import { createStore, combineReducers, compose, applyMiddleware } from "redux"
 import thunk from "redux-thunk"
-import { BrowserRouter } from "react-router-dom"
+import { BrowserRouter} from "react-router-dom"
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
@@ -26,7 +26,7 @@ const store = createStore(
 
 ReactDOM.render(
 	<Provider store={store}>
-		<BrowserRouter>
+		<BrowserRouter >
 			<App />
 		</BrowserRouter>
 	</Provider>,
