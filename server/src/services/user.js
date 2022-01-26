@@ -31,6 +31,7 @@ async function login(user) {
 async function remove(user) {
 	if (!user || !user.id || !user.email) return null
 	let res = await query("DELETE FROM user WHERE id=? AND email=?;", [user.id, user.email])
+	console.log(res)
 	if (res.affectedRows != 1)
 		return console.log(`SQL - Error when deleting user ${user.email}, response: ${res}`)
 	return true

@@ -59,7 +59,7 @@ class Book extends React.Component {
 						{this.state.cost} Kč
 					</Typography>
 				</CardContent>
-				<CardActions disableSpacing>
+				<CardActions>
 					<Expander
 						expand={this.state.expanded}
 						onClick={this.handleExpand}

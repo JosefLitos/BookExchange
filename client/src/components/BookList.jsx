@@ -1,55 +1,46 @@
 import { useEffect, useState } from "react"
-import { connect } from "react-redux"
-import { Link } from "react-router-dom"
+import { Link, useLocation, useSearchParams } from "react-router-dom"
 import axios from "axios"
 import Book from "./Book"
+import { Grid, Link as MuiLink, Button } from "@mui/material"
 
 function BookList(props) {
-	const searchUpdate = (event) => {
-		if (event.key === "Enter" || event.keyCode === 13) {
-			let bookList = document.getElementById("BookList")
-			bookList.innerHTML = null
-			axios
-				.get(`/books?q=${document.getElementById("search").value}`)
-				.then((res) => res.books.map((book) => bookList.appendChild(<Book data={book} />)))
-		}
-	}
-
+	const location = useLocation()
+	const [searchParams] = useSearchParams()
 	const [books, setBooks] = useState([])
-	useEffect(
-		() =>
-			axios
-				.get("/api/books")
-				.then((res) => setBooks(res.data))
-				.catch((err) => console.log(err)),
-		[]
-	)
+	useEffect(() => {
+		let q = searchParams.get("q")
+		if (q && q.length >= 64) return
+		axios
+			.get(`/api/books/${location.search}`)
+			.then((res) => setBooks(res.data))
+			.catch((err) => console.log(err))
+	}, [searchParams])
 
 	return (
-		<div title="BookList">
-			<input id="search" type="text" placeholder="Vyhledejte knihu" onKeyUp={searchUpdate} />
+		<Grid container justifyContent="center" sx={{ "& > :not(style)": { m: 1 } }}>
 			{books == null || books.length === 0 ? (
 				<p>
 					Buďte první, kdo nabídne učebnici.
 					{props.user ? (
 						<Link to="/commit">
-							<button>Přidat knihu</button>
+							<Button variant="contained" sx={{ ml: 1 }} size="small">
+								Přidat knihu
+							</Button>
 						</Link>
 					) : (
-						<a href="/api/user/login">Přihlásit/Registrovat</a>
+						<MuiLink href="/api/user/login">
+							<Button variant="contained" sx={{ m: 1 }} size="small">
+								Přihlásit/Registrovat
+							</Button>
+						</MuiLink>
 					)}
 				</p>
 			) : (
-				<ul id="BookList">
-					{books.map((book) => (
-						<li key={book.id}>
-							<Book data={book} />
-						</li>
-					))}
-				</ul>
+				books.map((book) => <Book key={book.id} data={book} />)
 			)}
-		</div>
+		</Grid>
 	)
 }
 
-export default connect((state) => ({ user: state.user }))(BookList)
+export default BookList

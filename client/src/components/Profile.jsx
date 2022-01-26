@@ -1,38 +1,31 @@
-import React, { useState, useEffect } from "react"
-import { connect } from "react-redux"
+import { useSelector } from "react-redux"
+import { Box, Button, Link, Typography } from "@mui/material"
 
-function Profile(props) {
-	const [state, setState] = useState({
-		name: "loading",
-		picture: "",
-	})
-	useEffect(() => {
-		if (props.user)
-			setState({
-				icon: props.user.icon,
-				name: props.user.name,
-				email: props.user.email,
-			})
-	}, [])
-	if (!props.user) props.history.push("/")
-
-	return (
-		<div>
-			<h1 style={{ textAlign: "center" }}>here is your profile </h1>
-			<div className="card" style={{ margin: "10%", padding: "10px", textAlign: "center" }}>
-				<img className="circle" src={state.icon} alt="[User icon]" />
-				<h2>{state.name}</h2>
-				{state.email}
-			</div>
-			<a
-				href="/api/user/remove"
-				className="red"
-				style={{ margin: "10%", padding: "10px", fontSize: "20px", color: "white" }}
-			>
-				Delete Account
-			</a>
-		</div>
-	)
+function Profile() {
+	const user = useSelector((global) => global.user)
+	if (!user) {
+		return (
+			<Box>
+				<Typography textAlign="center">Prosím přihlaste se.</Typography>
+				<Link href="/api/user/login">Přihlásit</Link>
+			</Box>
+		)
+	} else
+		return (
+			<Box>
+				<h1 style={{ textAlign: "center" }}>here is your profile </h1>
+				<div className="card" style={{ margin: "10%", padding: "10px", textAlign: "center" }}>
+					<img className="circle" src={user.icon} alt="[User icon]" />
+					<h2>{user.name}</h2>
+					{user.email}
+				</div>
+				<Link href="/api/user/remove">
+					<Button variant="contained" color="error" sx={{ m: 1 }}>
+						Smazat účet
+					</Button>
+				</Link>
+			</Box>
+		)
 }
 
-export default connect((state) => ({ user: state.user }))(Profile)
+export default Profile

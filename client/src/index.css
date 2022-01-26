@@ -7,3 +7,6 @@ body {
 code {
 	font-family: "Fira Code", source-code-pro, monospace;
 }
+a:visited, a:link, a:active {
+	color: black;
+}

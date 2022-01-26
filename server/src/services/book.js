@@ -1,7 +1,9 @@
 const query = require("./sql")(process.env.MYSQL_DB)
+const fs = require("fs")
+const path = require("./path")
 
 function all() {
-	return query("SELECT * FROM book;")
+	return query("SELECT * FROM book;", null, true)
 }
 
 async function get(id) {
@@ -31,15 +33,22 @@ async function update(bookId, updated, user) {
 
 async function remove(bookId, owner) {
 	let user = (await query("SELECT * FROM user WHERE id=? AND email=?;", [owner.id, owner.email]))[0]
-	if (user) return await query("DELETE FROM book WHERE id=?;", [bookId])
+	if (user) {
+		let res = await query("DELETE FROM book WHERE id=?;", [bookId])
+		console.log(res)
+		if (res.affectedRows == 1) {
+			fs.unlink(path(`img/books/${bookId}.jpg`), (err) => {
+				if (!err) return
+				console.log(`Book ${bookId} photo wasn't removed:`)
+				console.log(err)
+			})
+			return res
+		} else return res
+	}
 }
 
 function search(text) {
-	return query("SELECT * FROM book WHERE name IN (?) OR description IN (?) OR author IN (?);", [
-		text,
-		text,
-		text,
-	])
+	return query("SELECT * FROM book WHERE name LIKE ?;", [`%${text}%`])
 }
 
 async function createRequest(bookId, customer) {
@@ -59,7 +68,7 @@ function removeRequest(requestId) {
 	return query("DELETE FROM request WHERE id=?;", [requestId]).then((res) => res.affectedRows == 1)
 }
 
-function removeOldRequests(timestamp) {
+function removeOldRequests() {
 	return query("DELETE FROM request WHERE created_at < (NOW() - INTERVAL 1 YEAR);")
 }
 
