@@ -1,5 +1,5 @@
 // SOURCE: https://mui.com/components/app-bar/
-import { connect } from "react-redux"
+import { useSelector } from "react-redux"
 import { Link, useNavigate, useLocation, createSearchParams } from "react-router-dom"
 import { styled, alpha } from "@mui/material/styles"
 import {
@@ -59,7 +59,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 	},
 }))
 
-function Header(props) {
+function Header() {
+	const user = useSelector((global) => (global ? global.user : null))
 	const [anchorElUser, setAnchorElUser] = useState(null)
 	const location = useLocation()
 	let params = new URLSearchParams(location.search)
@@ -81,8 +82,13 @@ function Header(props) {
 	function search(e) {
 		if (e.keyCode == 13) {
 			// SOURCE: https://stackoverflow.com/a/31079244/12174842
-			if (searchText == "") navigate("/")
-			else navigate({ pathname: "/", search: `?${createSearchParams({ q: searchText })}` })
+			if (searchText == "") navigate({ search: "" })
+			else if (location.pathname.startsWith("/book"))
+				navigate(
+					{ pathname: "/", search: `?${createSearchParams({ q: searchText })}` },
+					{ replace: true }
+				)
+			else navigate({ search: `?${createSearchParams({ q: searchText })}` }, { replace: true })
 		}
 	}
 
@@ -93,7 +99,7 @@ function Header(props) {
 
 	let AccountButton
 	// test for user information
-	switch (props.user) {
+	switch (user) {
 		case null:
 			AccountButton = (
 				<Tooltip title="Server se načítá">
@@ -120,7 +126,7 @@ function Header(props) {
 				<Box sx={{ flexGrow: 0 }}>
 					<Tooltip title="Možnosti uživatele">
 						<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-							<Avatar alt={props.user.name} src={props.user.icon} />
+							<Avatar alt={user.name} src={user.icon} />
 						</IconButton>
 					</Tooltip>
 					<Menu
@@ -166,7 +172,9 @@ function Header(props) {
 						/>
 					</IconButton>
 				</Link>
-				<SearchBar sx={location.pathname.match(/\/[(?.*)(book/.*)]?$/) ? {} : { display: "none" }}>
+				<SearchBar
+					sx={location.pathname.match(/\/(\?.*|book\/.*|user.*)?$/) ? {} : { display: "none" }}
+				>
 					<SearchIconWrapper>
 						<Search />
 					</SearchIconWrapper>
@@ -184,4 +192,4 @@ function Header(props) {
 	)
 }
 
-export default connect((state) => ({ user: state.user }))(Header)
+export default Header

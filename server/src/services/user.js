@@ -1,4 +1,6 @@
 const query = require("./sql")(process.env.MYSQL_DB)
+const path = require("./path")
+const fs = require("fs")
 
 async function login(user) {
 	if (!user || !user.id || !user.email) return null
@@ -16,6 +18,7 @@ async function login(user) {
 		(await query("SELECT * FROM user WHERE id=? OR email=?;", [user.id, user.email])).length > 0
 	)
 		return null
+	if (!user.name || !user.icon) return null
 	return (
 		await query("INSERT INTO user (id, name, email, icon) VALUES (?, ?, ?, ?);", [
 			user.id,
@@ -30,15 +33,23 @@ async function login(user) {
 
 async function remove(user) {
 	if (!user || !user.id || !user.email) return null
+	let books = await query("SELECT * FROM book WHERE owner_id=?;", [user.id])
 	let res = await query("DELETE FROM user WHERE id=? AND email=?;", [user.id, user.email])
-	console.log(res)
 	if (res.affectedRows != 1)
 		return console.log(`SQL - Error when deleting user ${user.email}, response: ${res}`)
+	books.map(({ id }) =>
+		fs.unlink(path(`img/books/${id}.jpg`), (err) => {
+			if (!err) return
+			console.log(`Book ${id} photo wasn't removed:`)
+			console.log(err)
+		})
+	)
 	return true
 }
 
-function books(user) {
-	return query("SELECT * FROM book WHERE owner_id=?;", [user.id])
+function books(user, search) {
+	if (!search) return query("SELECT * FROM book WHERE owner_id=?;", [user.id])
+	return query("SELECT * FROM book WHERE name LIKE ? AND owner_id=?;", [`%${search}%`, user.id])
 }
 
 function requestedBooks(user) {
@@ -48,10 +59,9 @@ function requestedBooks(user) {
 }
 
 function incomingRequests(user) {
-	return query(
-		"SELECT * FROM book WHERE owner_id=? INNER JOIN request ON book.id=book_id;",
-		[user.id]
-	)
+	return query("SELECT * FROM book WHERE owner_id=? INNER JOIN request ON book.id=book_id;", [
+		user.id,
+	])
 }
 
 module.exports = { login, remove, books, requestedBooks, incomingRequests }

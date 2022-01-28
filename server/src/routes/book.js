@@ -27,24 +27,34 @@ module.exports = (app) => {
 
 	// SOURCE: https://stackoverflow.com/a/31532067/12174842
 	app.post("/api/book", upload.array("picRaw"), (req, res) => {
-		book.add(req.body, req.user).then((result) => {
-			if (result.affectedRows != 1) res.status(400).send({ success: false })
-			else
-				fs.writeFile(path(`img/books/${result.insertId}.jpg`), req.files[0].buffer, (err) => {
-					if (err) {
-						book.remove(result.insertId, req.user).then((result) => {
-							console.log(
-								`POST/api/book ${result.id} saving pic, delete res: ${result.affectedRows}`
-							)
-						})
-						res.status(400).send({ success: false })
-					} else {
-						console.log(`POST/api/book ${result.insertId} added:`)
-						console.log(req.body)
-						res.send({ success: true })
-					}
-				})
-		})
+		if (
+			!req.body ||
+			!req.body.name ||
+			!req.body.cost ||
+			!req.body.author ||
+			!req.body.year ||
+			!req.user
+		)
+			res.status(400).send({ success: false, error: "Missing book information or validation" })
+		else
+			book.add(req.body, req.user).then((result) => {
+				if (result.affectedRows != 1) res.status(400).send({ success: false })
+				else
+					fs.writeFile(path(`img/books/${result.insertId}.jpg`), req.files[0].buffer, (err) => {
+						if (err) {
+							book.remove(result.insertId, req.user).then((result) => {
+								console.log(
+									`POST/api/book ${result.id} saving pic, delete res: ${result.affectedRows}`
+								)
+							})
+							res.status(400).send({ success: false })
+						} else {
+							console.log(`POST/api/book ${result.insertId} added:`)
+							console.log(req.body)
+							res.send({ success: true })
+						}
+					})
+			})
 	})
 
 	app.patch("/api/book/:id", (req, res) => {

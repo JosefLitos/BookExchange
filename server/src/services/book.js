@@ -11,6 +11,7 @@ async function get(id) {
 }
 
 function add(book, user) {
+	if (!book.description) book.description = null
 	return query(
 		"INSERT INTO book (owner_id, name, author, year, cost, description) VALUES (?, ?, ?, ?, ?, ?);",
 		[user.id, book.name, book.author, book.year, book.cost, book.description]
@@ -21,6 +22,14 @@ async function update(bookId, updated, user) {
 	let book = await query("SELECT * FROM book WHERE id=? AND owner_id=?;", [bookId, user.id])
 	if (book.length == 0) return null
 	book = book[0]
+	if (!updated.description)
+		return query("UPDATE book SET cost=?, name=?, author=?, year=?, description=NULL WHERE id=?;", [
+			updated.cost || book.cost,
+			updated.name || book.name,
+			updated.author || book.author,
+			updated.year || book.year,
+			bookId,
+		])
 	return query("UPDATE book SET cost=?, name=?, author=?, year=?, description=? WHERE id=?;", [
 		updated.cost || book.cost,
 		updated.name || book.name,
@@ -35,7 +44,6 @@ async function remove(bookId, owner) {
 	let user = (await query("SELECT * FROM user WHERE id=? AND email=?;", [owner.id, owner.email]))[0]
 	if (user) {
 		let res = await query("DELETE FROM book WHERE id=?;", [bookId])
-		console.log(res)
 		if (res.affectedRows == 1) {
 			fs.unlink(path(`img/books/${bookId}.jpg`), (err) => {
 				if (!err) return

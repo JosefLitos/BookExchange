@@ -3,29 +3,25 @@ import ReactDOM from "react-dom"
 import "./index.css"
 import App from "./App"
 import { Provider } from "react-redux"
-import { createStore, combineReducers, compose, applyMiddleware } from "redux"
-import thunk from "redux-thunk"
-
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+import { createStore } from "redux"
 
 // user variable is used in Header to determine login state
-const store = createStore(
-	combineReducers({
-		user: (state = null, action) => {
-			switch (action.type) {
-				case "GET_USER":
-					return action.payload || false
-				default:
-					return state
-			}
-		},
-	}),
-	composeEnhancers(applyMiddleware(thunk))
-)
+const store = createStore((state = null, action) => {
+	switch (action.type) {
+		case "LOGOUT":
+			if (state) delete state.user
+			return state
+		case "LOGIN":
+			if (!state) return { user: action.payload }
+			return { ...state, user: action.payload } || false
+		default:
+			return state
+	}
+})
 
 ReactDOM.render(
 	<Provider store={store}>
-			<App />
+		<App />
 	</Provider>,
 	document.getElementById("root")
 )

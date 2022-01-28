@@ -4,11 +4,12 @@ import React from "react"
 import Book from "./Book"
 import Compress from "client-compress"
 import axios from "axios"
-import { Box, Button, Grid, TextField } from "@mui/material"
+import { Button, Grid, TextField, Link, Typography } from "@mui/material"
 import { green } from "@mui/material/colors"
 import { styled } from "@mui/material/styles"
 import { LoadingButton } from "@mui/lab"
 import { Add } from "@mui/icons-material"
+import { connect } from "react-redux"
 
 const FormBtn = styled(Button)(({ theme }) => ({
 	color: theme.palette.getContrastText(green[500]),
@@ -25,6 +26,15 @@ const Submit = styled(LoadingButton)(({ theme }) => ({
 		backgroundColor: green[700],
 	},
 }))
+
+const formPrompts = {
+	//id,   prompt,  type,  maxVal, isOptional
+	name: ["Název", "text", 64],
+	author: ["Autor", "text", 128],
+	year: ["Rok", "number", new Date().getFullYear()],
+	cost: ["Cena", "number", 9999],
+	description: ["Popisek knihy", "text", 512, true],
+}
 
 class BookCommit extends React.Component {
 	constructor(props) {
@@ -46,37 +56,31 @@ class BookCommit extends React.Component {
 		this.handleSubmit = this.handleSubmit.bind(this)
 	}
 
-	handleChange(e) {
+	/*componentDidMount() {
+		const navigate = useNavigate()
+		if (!this.props.user) navigate("/", { replace: true })
+	}*/
 
+	handleChange(e) {
+		e.preventDefault()
+		let item = formPrompts[e.target.id]
+		if (item[1] == "text") if (item[2] < e.target.value.length) return
+		if (item[1] == "number") if (item[2] < e.target.value || isNaN(e.target.value)) return
 		// SOURCE: https://stackoverflow.com/a/43639228/12174842
 		this.setState({ [e.target.id]: e.target.value })
 		this.preview.current.setState({ [e.target.id]: e.target.value })
-		e.preventDefault()
 	}
 
-	// TODO: find out, how to verify data and don't allow above name64, author128, description512
 	async handleSubmit(e) {
 		e.preventDefault()
-		if (
-			this.state.name.length > 64 ||
-			this.state.year > 9999 ||
-			this.state.cost > 9999 ||
-			this.state.author.length > 128 ||
-			this.state.description.length > 512
-		) {
-			this.setState({ failed: true })
-			return
-		}
 		this.setState({ uploading: true, failed: false })
 		const formData = new FormData()
 		formData.append("name", this.state.name)
 		formData.append("cost", this.state.cost)
 		formData.append("author", this.state.author)
 		formData.append("year", this.state.year)
-		formData.append(
-			"description",
-			this.state.description.trim().length > 0 ? this.state.description.trim() : null
-		)
+		if (this.state.description.trim().length > 0)
+			formData.append("description", this.state.description.trim())
 		formData.append("picRaw", this.state.picRaw)
 		let res
 		try {
@@ -89,7 +93,9 @@ class BookCommit extends React.Component {
 		}
 		res = await res
 		console.log(res)
+		//TODO: clear for next book
 		this.setState({ uploading: false, failed: !res.success })
+		
 	}
 
 	// SOURCE: https://medium.com/@ibamibrhm/custom-upload-button-image-preview-and-image-upload-with-react-hooks-a7977618ee8c
@@ -110,6 +116,19 @@ class BookCommit extends React.Component {
 	// SOURCE: https://reactjs.org/docs/forms.html
 	// SOURCE: https://react-bootstrap.github.io/components/cards/
 	render() {
+		if (!this.props.user) {
+			if (this.props.user != null) return ""
+			return (
+				<Typography textAlign="center">
+					Pro přidání knížek se musíte nejprve
+					<Link href="/api/user/login">
+						<Button variant="contained" sx={{ m: 1 }}>
+							Přihlásit
+						</Button>
+					</Link>
+				</Typography>
+			)
+		}
 		return (
 			<Grid container justifyContent="center" sx={{ "& > :not(style)": { m: 1 } }}>
 				<Grid
@@ -126,36 +145,21 @@ class BookCommit extends React.Component {
 						justifyContent="center"
 						sx={{ "& > :not(style)": { m: 1 }, border: "1px solid grey", borderRadius: "10px" }}
 					>
-						{[
-							["name", "Název", "text"],
-							["author", "Autor", "text"],
-							["year", "Rok", "number"],
-							["cost", "Cena", "number"],
-						].map((item) => (
+						{Object.keys(formPrompts).map((item) => (
 							<TextField
-								key={item[0]}
-								id={item[0]}
-								label={item[1]}
-								type={item[2]}
+								key={item}
+								id={item}
+								label={formPrompts[item][0]}
 								size="small"
-								required
-								value={this.state[item[0]]}
+								{...{ required: !formPrompts[item][3] }}
+								value={this.state[item]}
 								onChange={this.handleChange}
 							/>
 						))}
-						<TextField
-							key="description"
-							id="description"
-							label="Popisek Knihy"
-							size="small"
-							multiline
-							value={this.state.description}
-							onChange={this.handleChange}
-						/>
 						<div>
 							{/*added div to stop the grid resizing of upload button*/}
 							<FormBtn variant="contained" component="label">
-								Nahrát fotku
+								Nahrát fotku *
 								<input
 									id="pic"
 									accept="image/*"
@@ -171,7 +175,7 @@ class BookCommit extends React.Component {
 						variant="contained"
 						startIcon={<Add />}
 						loadingPosition="start"
-						{...this.state.uploading ? ["loading"]: []}
+						{...(this.state.uploading ? ["loading"] : [])}
 						error={Boolean(this.state.failed).toString()}
 						sx={{ m: 1, width: "16.5ch" }}
 						type="submit"
@@ -185,4 +189,4 @@ class BookCommit extends React.Component {
 	}
 }
 
-export default BookCommit
+export default connect((global) => ({ user: global ? global.user : null }))(BookCommit)

@@ -10,7 +10,7 @@ module.exports = (app) => {
 	app.get("/api/user/gcallback", passport.authenticate("google"), (req, res) => res.redirect("/"))
 
 	app.get("/api/user/info", (req, res) => {
-		res.send(req.user)
+		res.send({ user: req.user })
 	})
 
 	app.get("/api/user/logout", (req, res) => {
@@ -18,15 +18,15 @@ module.exports = (app) => {
 		res.redirect("/")
 	})
 
-	app.get("/api/user/remove", async (req, res) => {
+	app.delete("/api/user", async (req, res) => {
 		if (await user.remove(req.user)) {
 			req.logout()
-			res.redirect("/")
-		} else res.redirect("/user")
+			res.send({ success: true })
+		} else res.status(400).send({ success: false })
 	})
 
 	app.get("/api/user/books", (req, res) => {
-		user.books(req.user).then((books) => res.send(books))
+		user.books(req.user, req.query.q).then((books) => res.send(books))
 	})
 
 	app.get("/api/user/requested", (req, res) => {

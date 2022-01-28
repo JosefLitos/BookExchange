@@ -5,7 +5,7 @@ const GooleStrategy = require("passport-google-oauth20").Strategy
 passport.serializeUser((profile, done) => done(null, { id: profile.id, email: profile.email }))
 passport.deserializeUser((profile, done) => { // Why is this called twice on every page load?
 	if (profile && profile.id && profile.email && profile.icon && profile.name) done(null, profile)
-	else user.login(profile).then((res) => done(res ? null : "User data error", res))
+	else user.login(profile).then((res) => done(null, res))
 }
 )
 passport.use(

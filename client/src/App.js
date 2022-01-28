@@ -1,22 +1,22 @@
-import React, { useEffect } from "react"
 import { Route, BrowserRouter, Routes } from "react-router-dom"
-import { connect, useDispatch } from "react-redux"
+import { useDispatch } from "react-redux"
 import axios from "axios"
 import Header from "./components/Header"
 import BookList from "./components/BookList"
 import BookDetail from "./components/BookDetail"
 import BookCommit from "./components/BookCommit"
-import Profile from "./components/Profile"
+import User from "./components/User"
 
-function App(props) {
+function App() {
+	// on user login, get profile data
 	const dispatch = useDispatch()
-	useEffect(() => axios.get("/api/user/info").then(res => dispatch({type: "GET_USER", payload: res.data})), [])
+	axios.get("/api/user/info").then((res) => dispatch({ type: "LOGIN", payload: res.data.user }))
 	return (
 		<BrowserRouter>
 			<Header />
 			<Routes>
 				<Route path="/" element={<BookList />} />
-				<Route path="/user" element={<Profile />} />
+				<Route path="/user" element={<User />} />
 				<Route path="/book" element={<BookDetail />} />
 				<Route path="/commit" element={<BookCommit />} />
 			</Routes>
@@ -24,5 +24,4 @@ function App(props) {
 	)
 }
 
-// on user login, get profile data
 export default App

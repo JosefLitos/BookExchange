@@ -71,6 +71,8 @@ class Book extends React.Component {
 					<CardContent>
 						<Typography variant="h6" color="text.primary">
 							Autor: {this.state.author}
+							<br />
+							Rok: {this.state.year}
 						</Typography>
 						<Typography paragraph>{this.state.description}</Typography>
 					</CardContent>
