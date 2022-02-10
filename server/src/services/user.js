@@ -4,7 +4,7 @@ const fs = require("fs")
 
 async function login(user) {
 	if (!user || !user.id || !user.email) return null
-	let users = await query("SELECT * FROM user WHERE id=? AND email=?;", [user.id, user.email])
+	let users = await query("SELECT * FROM user WHERE id=? AND email=?;", [user.id, user.email], true)
 	if (users.length > 0) {
 		if (users[0].name != user.name && user.name) {
 			if (users[0].icon != user.icon && user.icon)
@@ -48,8 +48,8 @@ async function remove(user) {
 }
 
 function books(user, search) {
-	if (!search) return query("SELECT * FROM book WHERE owner_id=?;", [user.id])
-	return query("SELECT * FROM book WHERE name LIKE ? AND owner_id=?;", [`%${search}%`, user.id])
+	if (!search) return query("SELECT * FROM book WHERE owner_id=?;", [user.id], true)
+	return query("SELECT * FROM book WHERE name LIKE ? AND owner_id=?;", [`%${search}%`, user.id], true)
 }
 
 function requestedBooks(user) {

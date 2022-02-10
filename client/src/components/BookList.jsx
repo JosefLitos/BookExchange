@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
 import { Link, useLocation, useSearchParams } from "react-router-dom"
 import axios from "axios"
 import Book from "./Book"
-import { Grid, Button } from "@mui/material"
+import { Grid, Button, Typography } from "@mui/material"
 
 function BookList(props) {
+	const user = props.forUser || useSelector((global) => (global ? global.user : null))
 	const location = useLocation()
 	const [searchParams] = useSearchParams()
 	const [books, setBooks] = useState([])
@@ -19,17 +21,37 @@ function BookList(props) {
 
 	return (
 		<Grid container justifyContent="center" sx={{ "& > :not(style)": { m: 1 } }}>
-			{books == null || books.length === 0 ? (
-				<p>
-					Buďte první, kdo nabídne učebnici.
+			{books == null ? (
+				""
+			) : books.length === 0 ? (
+				<Typography variant="subtitle">
+					{props.forUser
+						? "Vyhledanému textu neodpovídají žádné knihy"
+						: "Buďte první, kdo nabídne učebnici."}
 					<Link to="/commit">
 						<Button variant="contained" sx={{ ml: 1 }} size="small">
 							Přidat knihu
 						</Button>
 					</Link>
-				</p>
+				</Typography>
+			) : props.forUser ? (
+				books.map((book) => (
+					<div key={book.id}>
+						<Book data={book} owned />
+					</div>
+				))
+			) : user ? (
+				books.map((book) => (
+					<div key={book.id}>
+						<Book key={book.id} data={book} requestable />
+					</div>
+				))
 			) : (
-				books.map((book) => <Book key={book.id} data={book} />)
+				books.map((book) => (
+					<div key={book.id}>
+						<Book key={book.id} data={book} />
+					</div>
+				))
 			)}
 		</Grid>
 	)

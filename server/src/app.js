@@ -19,4 +19,5 @@ module.exports = (app) => {
 
 	require("./routes/book")(app)
 	require("./routes/user")(app)
+	require("./routes/request")(app)
 }

@@ -4,28 +4,9 @@ import React from "react"
 import Book from "./Book"
 import Compress from "client-compress"
 import axios from "axios"
-import { Button, Grid, TextField, Link, Typography } from "@mui/material"
-import { green } from "@mui/material/colors"
-import { styled } from "@mui/material/styles"
-import { LoadingButton } from "@mui/lab"
-import { Add } from "@mui/icons-material"
+import { Button, Grid, TextField, Link, Typography, Alert } from "@mui/material"
+import { Add, Edit } from "@mui/icons-material"
 import { connect } from "react-redux"
-
-const FormBtn = styled(Button)(({ theme }) => ({
-	color: theme.palette.getContrastText(green[500]),
-	backgroundColor: green[500],
-	"&:hover": {
-		backgroundColor: green[700],
-	},
-}))
-
-const Submit = styled(LoadingButton)(({ theme }) => ({
-	color: theme.palette.getContrastText(green[500]),
-	backgroundColor: green[500],
-	"&:hover": {
-		backgroundColor: green[700],
-	},
-}))
 
 const formPrompts = {
 	//id,   prompt,  type,  maxVal, isOptional
@@ -36,44 +17,70 @@ const formPrompts = {
 	description: ["Popisek knihy", "text", 512, true],
 }
 
+const defaults = {
+	name: "",
+	cost: "",
+	author: "",
+	year: "",
+	description: "",
+	picPrev: false,
+}
+
 class BookCommit extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			name: "",
-			cost: "",
-			author: "",
-			year: "",
-			description: "",
-			picPrev: "",
-			picRaw: "",
+			...defaults,
+			picRaw: false,
+			editing: false,
+			severity: false,
+			alert: "",
+			uploading: false,
 		}
 		// SOURCE: https://www.freecodecamp.org/news/react-changing-state-of-child-component-from-parent-8ab547436271/
 		this.preview = React.createRef()
+		if (props.params && props.params.id)
+			axios.get(`/api/book/${props.params.id}`).then((res) => {
+				if (!res.data.description) res.data.description = ""
+				this.setState({ ...res.data, editing: true })
+				this.preview.current.setState({ ...res.data })
+			})
 
 		this.handleChange = this.handleChange.bind(this)
 		this.handleUpload = this.handleUpload.bind(this)
 		this.handleSubmit = this.handleSubmit.bind(this)
 	}
 
-	/*componentDidMount() {
-		const navigate = useNavigate()
-		if (!this.props.user) navigate("/", { replace: true })
-	}*/
-
 	handleChange(e) {
 		e.preventDefault()
 		let item = formPrompts[e.target.id]
-		if (item[1] == "text") if (item[2] < e.target.value.length) return
-		if (item[1] == "number") if (item[2] < e.target.value || isNaN(e.target.value)) return
+		if (item[1] == "text" && item[2] < e.target.value.length) return
+		if (item[1] == "number" && (item[2] < e.target.value || isNaN(e.target.value))) return
 		// SOURCE: https://stackoverflow.com/a/43639228/12174842
-		this.setState({ [e.target.id]: e.target.value })
+		this.setState({ severity: false, [e.target.id]: e.target.value })
 		this.preview.current.setState({ [e.target.id]: e.target.value })
 	}
 
 	async handleSubmit(e) {
 		e.preventDefault()
-		this.setState({ uploading: true, failed: false })
+		if (this.state.uploading) {
+			this.setState({ severity: "info", alert: "Prosím vyčkejte!" })
+			return
+		} else if (
+			!this.state.name ||
+			!this.state.cost ||
+			!this.state.author ||
+			!this.state.year ||
+			!(this.state.picPrev || this.state.editing)
+		) {
+			this.setState({
+				picMissing: !this.state.picPrev,
+				severity: "warning",
+				alert: "Prosím vyplňte všechna pole s *!",
+			})
+			return
+		}
+		this.setState({ uploading: true, severity: false })
 		const formData = new FormData()
 		formData.append("name", this.state.name)
 		formData.append("cost", this.state.cost)
@@ -81,21 +88,58 @@ class BookCommit extends React.Component {
 		formData.append("year", this.state.year)
 		if (this.state.description.trim().length > 0)
 			formData.append("description", this.state.description.trim())
-		formData.append("picRaw", this.state.picRaw)
+		if (this.state.picPrev) formData.append("picRaw", this.state.picRaw)
 		let res
 		try {
 			// SOURCE: https://stackoverflow.com/a/47630754/12174842
-			res = axios.post("/api/book", formData, {
-				headers: { "Content-Type": "multipart/form-data" },
-			})
+			if (this.state.editing)
+				res = await axios.patch(`/api/book/${this.props.params.id}`, formData, {
+					headers: { "Content-Type": "multipart/form-data" },
+				})
+			else
+				res = await axios.post("/api/book", formData, {
+					headers: { "Content-Type": "multipart/form-data" },
+				})
 		} catch (e) {
-			console.error(e)
+			console.error(res ? res.data.error : e)
+			this.setState({
+				uploading: false,
+				severity: "error",
+				alert: "Nastala chyba při zpracování knihy, prosím zkontrolujte zadané údaje!",
+			})
+			return
 		}
-		res = await res
-		console.log(res)
-		//TODO: clear for next book
-		this.setState({ uploading: false, failed: !res.success })
-		
+		if (res.data.success) {
+			if (this.state.editing)
+				this.setState({
+					picPrev: false,
+					picRaw: false,
+					uploading: false,
+					severity: "success",
+					alert: "Kniha byla úspěšně upravena!",
+				})
+			else {
+				this.setState({
+					...defaults,
+					picRaw: false,
+					uploading: false,
+					severity: "success",
+					alert: "Kniha byla úspěšně vytvořena!",
+				})
+				this.preview.current.setState({ ...defaults })
+			}
+		} else if (res.status == 200)
+			this.setState({
+				uploading: false,
+				severity: "warning",
+				alert: "Pro změnu informací musíte nejprve změnit data o knížce!",
+			})
+		else
+			this.setState({
+				uploading: false,
+				severity: "error",
+				alert: "Nastala chyba při zpracování knihy, prosím zkontrolujte zadané údaje!",
+			})
 	}
 
 	// SOURCE: https://medium.com/@ibamibrhm/custom-upload-button-image-preview-and-image-upload-with-react-hooks-a7977618ee8c
@@ -109,7 +153,11 @@ class BookCommit extends React.Component {
 					picPrev: URL.createObjectURL(res[0].photo.data),
 					picRaw: res[0].photo.data,
 				})
-				this.preview.current.setState({ picPrev: URL.createObjectURL(res[0].photo.data) })
+				this.preview.current.setState({
+					severity: false,
+					picMissing: false,
+					picPrev: URL.createObjectURL(res[0].photo.data),
+				})
 			})
 	}
 
@@ -158,30 +206,29 @@ class BookCommit extends React.Component {
 						))}
 						<div>
 							{/*added div to stop the grid resizing of upload button*/}
-							<FormBtn variant="contained" component="label">
-								Nahrát fotku *
-								<input
-									id="pic"
-									accept="image/*"
-									type="file"
-									required
-									hidden
-									onChange={this.handleUpload}
-								/>
-							</FormBtn>
+							<Button
+								color={this.state.picMissing ? "error" : "primary"}
+								variant="contained"
+								component="label"
+							>
+								Nahrát fotku{this.state.editing ? "" : " *"}
+								<input id="pic" accept="image/*" type="file" hidden onChange={this.handleUpload} />
+							</Button>
 						</div>
 					</Grid>
-					<Submit
+					<Button
 						variant="contained"
-						startIcon={<Add />}
-						loadingPosition="start"
-						{...(this.state.uploading ? ["loading"] : [])}
-						error={Boolean(this.state.failed).toString()}
-						sx={{ m: 1, width: "16.5ch" }}
+						startIcon={this.state.editing ? <Edit /> : <Add />}
+						sx={{ m: 2, p: "10px" }}
 						type="submit"
 					>
-						Přidat knihu
-					</Submit>
+						{this.state.editing ? "Upravit knihu" : "Přidat knihu"}
+					</Button>
+					{this.state.severity ? (
+						<Alert severity={this.state.severity}>{this.state.alert}</Alert>
+					) : (
+						""
+					)}
 				</Grid>
 				<Book ref={this.preview} className="row" />
 			</Grid>

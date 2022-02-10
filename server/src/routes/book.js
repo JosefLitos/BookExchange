@@ -4,36 +4,25 @@ const upload = require("multer")()
 const fs = require("fs")
 
 module.exports = (app) => {
-	app.get("/api/books", (req, res) => {
-		console.log(req.query)
-		if (!req.query.q) book.all().then((result) => res.send(result))
-		else book.search(req.query.q).then((result) => res.send(result))
-	})
-
-	//app.use(express.static("public"))
-	/*app.get("/api/book/:id/pic", (req, res) => {
-	book.get(req.params.id).then((book) => {
-		let imageFiles = fs.readdirSync(`./public/books/${req.params.id}/`)
-		book.images = new Array(imageFiles.length)
-		imageFiles
-			.forEach((file) => book.images.push(`/books/${req.params.id}/${file}`))
-			.then(() => res.send(book))
-	})
-})*/
+	app.get("/api/books", (req, res) =>
+		book.all(req.user, req.query.q).then((result) => res.send(result))
+	)
 
 	app.get("/api/book/:id", (req, res) => {
-		book.get(req.params.id).then((result) => res.send(result[0]))
+		book.get(req.params.id).then((result) => res.send(result))
 	})
 
 	// SOURCE: https://stackoverflow.com/a/31532067/12174842
 	app.post("/api/book", upload.array("picRaw"), (req, res) => {
 		if (
+			!req.user ||
 			!req.body ||
 			!req.body.name ||
 			!req.body.cost ||
 			!req.body.author ||
 			!req.body.year ||
-			!req.user
+			!req.files ||
+			!req.files[0]
 		)
 			res.status(400).send({ success: false, error: "Missing book information or validation" })
 		else
@@ -44,7 +33,7 @@ module.exports = (app) => {
 						if (err) {
 							book.remove(result.insertId, req.user).then((result) => {
 								console.log(
-									`POST/api/book ${result.id} saving pic, delete res: ${result.affectedRows}`
+									`POST/api/book ${result.id} pic save error, deletion res: ${result.affectedRows}`
 								)
 							})
 							res.status(400).send({ success: false })
@@ -57,10 +46,18 @@ module.exports = (app) => {
 			})
 	})
 
-	app.patch("/api/book/:id", (req, res) => {
+	app.patch("/api/book/:id", upload.array("picRaw"), (req, res) => {
 		book.update(req.params.id, req.body, req.user).then((result) => {
-			if (!result) res.status(400).send({ success: false })
-			else res.send({ success: true })
+			if (result === undefined) res.status(400).send({ success: false })
+			else if (req.files && req.files[0])
+				fs.writeFile(path(`img/books/${req.params.id}.jpg`), req.files[0].buffer, (err) => {
+					if (err) {
+						console.log(`PATCH/api/book/${req.params.id} pic save error:`)
+						console.err(err)
+						res.status(400).send({ success: false })
+					} else res.send({ success: true })
+				})
+			else res.send({ success: result != false })
 		})
 	})
 
@@ -70,4 +67,11 @@ module.exports = (app) => {
 			else res.send({ success: true })
 		})
 	})
+
+	app.get("/api/book/:id/requests", (req, res) =>
+		book.requestsFor(req.params.id, req.user).then((result) => {
+			if (!result) res.status(400).send([])
+			else res.send(result)
+		})
+	)
 }

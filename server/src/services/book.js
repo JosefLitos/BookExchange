@@ -2,8 +2,18 @@ const query = require("./sql")(process.env.MYSQL_DB)
 const fs = require("fs")
 const path = require("./path")
 
-function all() {
-	return query("SELECT * FROM book;", null, true)
+function all(user, q) {
+	if (!user) return query("SELECT * FROM book ORDER BY cost ASC;", null, true)
+	if (!q) return query("SELECT * FROM book WHERE owner_id!=? ORDER BY cost ASC;", [user.id], true)
+
+	console.log(`Searching for: '${q}'`)
+	if (!user)
+		return query("SELECT * FROM book WHERE name LIKE ? ORDER BY cost ASC;", [`%${q}%`], true)
+	return query(
+		"SELECT * FROM book WHERE name LIKE ? AND owner_id!=? ORDER BY cost ASC;",
+		[`%${q}%`, user.id],
+		true
+	)
 }
 
 async function get(id) {
@@ -11,33 +21,41 @@ async function get(id) {
 }
 
 function add(book, user) {
-	if (!book.description) book.description = null
 	return query(
 		"INSERT INTO book (owner_id, name, author, year, cost, description) VALUES (?, ?, ?, ?, ?, ?);",
-		[user.id, book.name, book.author, book.year, book.cost, book.description]
+		[user.id, book.name, book.author, book.year, book.cost, book.description || null]
 	)
 }
 
 async function update(bookId, updated, user) {
-	let book = await query("SELECT * FROM book WHERE id=? AND owner_id=?;", [bookId, user.id])
-	if (book.length == 0) return null
+	let book = await query("SELECT * FROM book WHERE id=? AND owner_id=?;", [bookId, user.id], true)
+	if (book.length == 0) return
 	book = book[0]
-	if (!updated.description)
-		return query("UPDATE book SET cost=?, name=?, author=?, year=?, description=NULL WHERE id=?;", [
-			updated.cost || book.cost,
-			updated.name || book.name,
-			updated.author || book.author,
-			updated.year || book.year,
-			bookId,
-		])
-	return query("UPDATE book SET cost=?, name=?, author=?, year=?, description=? WHERE id=?;", [
-		updated.cost || book.cost,
-		updated.name || book.name,
-		updated.author || book.author,
-		updated.year || book.year,
-		updated.description || book.description,
-		bookId,
-	])
+	let toAdd = ["", []]
+	if (updated.name != book.name) {
+		toAdd[0] += ", name=?"
+		toAdd[1].push(updated.name)
+	}
+	if (updated.cost != book.cost) {
+		toAdd[0] += ", cost=?"
+		toAdd[1].push(updated.cost)
+	}
+	if (updated.author != book.author) {
+		toAdd[0] += ", author=?"
+		toAdd[1].push(updated.author)
+	}
+	if (updated.year != book.year) {
+		toAdd[0] += ", year=?"
+		toAdd[1].push(updated.year)
+	}
+	if (updated.description != book.description) {
+		toAdd[0] += ", description=?"
+		toAdd[1].push(updated.description || null)
+	}
+	if (toAdd[1].length == 0) return false
+	toAdd[0] = toAdd[0].substring(1)
+	toAdd[0] = "UPDATE book SET" + toAdd[0] + " WHERE id=?"
+	return query(toAdd[0], [...toAdd[1], bookId])
 }
 
 async function remove(bookId, owner) {
@@ -55,29 +73,15 @@ async function remove(bookId, owner) {
 	}
 }
 
-function search(text) {
-	return query("SELECT * FROM book WHERE name LIKE ?;", [`%${text}%`])
-}
-
-async function createRequest(bookId, customer) {
+async function requestsFor(bookId, user) {
 	if (
-		(await query("SELECT * FROM request WHERE book_id=? AND customer_id=?;", [bookId, customer.id]))
-			.length > 0
+		!bookId ||
+		!user ||
+		!user.id ||
+		(await query("SELECT id FROM book WHERE id=? AND owner_id=?;", [bookId, user.id])).length == 0
 	)
-		return false
-	return query("INSERT INTO request (book_id, customer_id) VALUES (?, ?);", [bookId, customer.id])
-}
-
-function getRequests(bookId) {
-	return query("SELECT * FROM request WHERE book_id=?;", [bookId])
-}
-
-function removeRequest(requestId) {
-	return query("DELETE FROM request WHERE id=?;", [requestId]).then((res) => res.affectedRows == 1)
-}
-
-function removeOldRequests() {
-	return query("DELETE FROM request WHERE created_at < (NOW() - INTERVAL 1 YEAR);")
+		return
+	return await query("SELECT * FROM request WHERE book_id=?;", [bookId])
 }
 
 module.exports = {
@@ -86,9 +90,5 @@ module.exports = {
 	add,
 	update,
 	remove,
-	search,
-	createRequest,
-	getRequests,
-	removeRequest,
-	removeOldRequests,
+	requestsFor,
 }

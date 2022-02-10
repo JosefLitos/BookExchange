@@ -27,8 +27,8 @@ function User() {
 
 	return (
 		<Box>
-			<Typography variant="h4" textAlign="center">Přehled Vámi vlastněných knih</Typography>
-			<BookList forUser/>
+			<Typography variant="h4" textAlign="center">Přehled Vámi nabízených knih</Typography>
+			<BookList forUser={user.id} />
 			<Button variant="contained" color="error" sx={{ m: 1 }} onClick={onDel}>
 				Smazat účet
 			</Button>

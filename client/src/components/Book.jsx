@@ -1,4 +1,4 @@
-import { ExpandMore } from "@mui/icons-material"
+import { Add, Delete, Edit, ExpandMore } from "@mui/icons-material"
 import {
 	Card,
 	CardActions,
@@ -9,7 +9,9 @@ import {
 	Typography,
 } from "@mui/material"
 import { styled } from "@mui/material/styles"
+import axios from "axios"
 import React from "react"
+import { Link } from "react-router-dom"
 
 const Expander = styled((props) => {
 	const { expand, ...other } = props
@@ -30,25 +32,38 @@ class Book extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = props.data || {}
-		if (!this.state.prevPic) {
-			this.state.picPrev = `${process.env.PUBLIC_URL}/img/books/${this.state.id}.jpg`
-		}
 		this.state.expanded = false
 		this.handleExpand = this.handleExpand.bind(this)
+		this.add = this.add.bind(this)
+		this.remove = this.remove.bind(this)
 	}
 
 	handleExpand() {
 		this.setState({ expanded: !this.state.expanded })
 	}
 
+	add(e) {
+		axios
+			.post("/api/request", { book_id: this.state.id })
+			.then((res) => this.setState({ addColour: res.data.success ? "success" : "error" }))
+			.catch((err) => this.setState({ addColour: "error" }))
+	}
+
+	remove(e) {
+		axios.delete(`/api/book/${this.state.id}`).then((res) => {
+			if (res.data.success) this.setState({ removed: true })
+		})
+	}
+
 	// SOURCE: https://mui.com/components/cards/
 	render() {
+		if (this.state.removed) return ""
 		return (
 			<Card sx={{ maxWidth: 300 }}>
 				<CardMedia
 					component="img"
 					sx={{ maxWidth: 300, maxHeight: 400 }}
-					image={this.state.picPrev}
+					image={this.state.picPrev || `${process.env.PUBLIC_URL}/img/books/${this.state.id}.jpg`}
 					alt="[Fotka knihy není dostupná]"
 				/>
 				<CardContent sx={{ p: 1 }}>
@@ -60,6 +75,29 @@ class Book extends React.Component {
 					</Typography>
 				</CardContent>
 				<CardActions>
+					{this.props.requestable ? (
+						<IconButton
+							{...(this.state.addColour ? { color: this.state.addColour } : { onClick: this.add })}
+						>
+							<Add />
+						</IconButton>
+					) : (
+						""
+					)}
+					{this.props.owned ? (
+						<IconButton color="error" onClick={this.remove}>
+							<Delete />
+						</IconButton>
+					) : (
+						""
+					)}
+					{this.props.owned ? (
+						<IconButton color="warning" component={Link} to={`/book/${this.state.id}/edit`}>
+							<Edit />
+						</IconButton>
+					) : (
+						""
+					)}
 					<Expander
 						expand={this.state.expanded}
 						onClick={this.handleExpand}

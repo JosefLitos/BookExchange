@@ -21,7 +21,8 @@ function create(dbName) {
 				if (!nodebug) console.log("SQL:", query, "\nresponse:", res)
 				resolve(res)
 			} catch (err) {
-				console.log("SQL Error occured!")
+				console.log("SQL Error occured:")
+				console.log(err)
 				reject(err)
 			} finally {
 				if (conn) conn.release()
