@@ -35,6 +35,7 @@ module.exports = (app) => {
 								console.log(
 									`POST/api/book ${result.id} pic save error, deletion res: ${result.affectedRows}`
 								)
+								console.error(err)
 							})
 							res.status(400).send({ success: false })
 						} else {
@@ -63,7 +64,7 @@ module.exports = (app) => {
 
 	app.delete("/api/book/:id", (req, res) => {
 		book.remove(req.params.id, req.user).then((result) => {
-			if (result.affectedRows != 1) res.status(400).send({ success: false })
+			if (!result || result.affectedRows != 1) res.status(400).send({ success: false })
 			else res.send({ success: true })
 		})
 	})

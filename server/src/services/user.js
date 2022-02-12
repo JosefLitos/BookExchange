@@ -49,19 +49,11 @@ async function remove(user) {
 
 function books(user, search) {
 	if (!search) return query("SELECT * FROM book WHERE owner_id=?;", [user.id], true)
-	return query("SELECT * FROM book WHERE name LIKE ? AND owner_id=?;", [`%${search}%`, user.id], true)
+	return query(
+		"SELECT * FROM book WHERE name LIKE ? AND owner_id=?;",
+		[`%${search}%`, user.id],
+		true
+	)
 }
 
-function requestedBooks(user) {
-	return query("SELECT * FROM request WHERE customer_id=? INNER JOIN book ON book_id=book.id;", [
-		user.id,
-	])
-}
-
-function incomingRequests(user) {
-	return query("SELECT * FROM book WHERE owner_id=? INNER JOIN request ON book.id=book_id;", [
-		user.id,
-	])
-}
-
-module.exports = { login, remove, books, requestedBooks, incomingRequests }
+module.exports = { login, remove, books }

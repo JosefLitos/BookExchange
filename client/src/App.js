@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux"
 import axios from "axios"
 import Header from "./components/Header"
 import BookList from "./components/BookList"
-import BookDetail from "./components/BookDetail"
 import BookCommit from "./components/BookCommit"
 import User from "./components/User"
 
@@ -21,7 +20,6 @@ function App() {
 			<Routes>
 				<Route path="/" element={<BookList />} />
 				<Route path="/user" element={<User />} />
-				<Route path="/book" element={<BookDetail />} />
 				<Route path="/book/:id/edit" element={<ParamWrapper component={BookCommit} />} />
 				<Route path="/commit" element={<BookCommit />} />
 			</Routes>

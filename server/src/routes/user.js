@@ -28,12 +28,4 @@ module.exports = (app) => {
 	app.get("/api/user/books", (req, res) => {
 		user.books(req.user, req.query.q).then((books) => res.send(books))
 	})
-
-	app.get("/api/user/requested", (req, res) => {
-		user.requestedBooks(req.user).then((requests) => res.send(requests))
-	})
-
-	app.get("/api/user/requests", (req, res) => {
-		user.incomingRequests(req.user).then((requests) => res.send(requests))
-	})
 }

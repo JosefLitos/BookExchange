@@ -3,14 +3,13 @@ const fs = require("fs")
 const path = require("./path")
 
 function all(user, q) {
-	if (!user) return query("SELECT * FROM book ORDER BY cost ASC;", null, true)
-	if (!q) return query("SELECT * FROM book WHERE owner_id!=? ORDER BY cost ASC;", [user.id], true)
+	if (!user) return query("SELECT * FROM book ORDER BY cost;", null, true)
+	if (!q) return query("SELECT * FROM book WHERE owner_id!=? ORDER BY cost;", [user.id], true)
 
 	console.log(`Searching for: '${q}'`)
-	if (!user)
-		return query("SELECT * FROM book WHERE name LIKE ? ORDER BY cost ASC;", [`%${q}%`], true)
+	if (!user) return query("SELECT * FROM book WHERE name LIKE ? ORDER BY cost;", [`%${q}%`], true)
 	return query(
-		"SELECT * FROM book WHERE name LIKE ? AND owner_id!=? ORDER BY cost ASC;",
+		"SELECT * FROM book WHERE name LIKE ? AND owner_id!=? ORDER BY cost;",
 		[`%${q}%`, user.id],
 		true
 	)
@@ -54,14 +53,13 @@ async function update(bookId, updated, user) {
 	}
 	if (toAdd[1].length == 0) return false
 	toAdd[0] = toAdd[0].substring(1)
-	toAdd[0] = "UPDATE book SET" + toAdd[0] + " WHERE id=?"
+	toAdd[0] = "UPDATE book SET" + toAdd[0] + " WHERE id=?;"
 	return query(toAdd[0], [...toAdd[1], bookId])
 }
 
 async function remove(bookId, owner) {
-	let user = (await query("SELECT * FROM user WHERE id=? AND email=?;", [owner.id, owner.email]))[0]
-	if (user) {
-		let res = await query("DELETE FROM book WHERE id=?;", [bookId])
+	if (owner && owner.id && owner.name && owner.icon) {
+		let res = await query("DELETE FROM book WHERE id=? AND owner_id=?;", [bookId, owner.id])
 		if (res.affectedRows == 1) {
 			fs.unlink(path(`img/books/${bookId}.jpg`), (err) => {
 				if (!err) return

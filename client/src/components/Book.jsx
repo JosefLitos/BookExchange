@@ -28,7 +28,7 @@ const Expander = styled((props) => {
 	}),
 }))
 
-class Book extends React.Component {
+export default class Book extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = props.data || {}
@@ -119,4 +119,3 @@ class Book extends React.Component {
 		)
 	}
 }
-export default Book

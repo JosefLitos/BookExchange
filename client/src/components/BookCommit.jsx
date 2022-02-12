@@ -191,7 +191,7 @@ class BookCommit extends React.Component {
 					<Grid
 						container
 						justifyContent="center"
-						sx={{ "& > :not(style)": { m: 1 }, border: "1px solid grey", borderRadius: "10px" }}
+						sx={{ "& > :not(style)": { m: 1 }, border: "1px solid grey", borderRadius: "5px" }}
 					>
 						{Object.keys(formPrompts).map((item) => (
 							<TextField

@@ -59,7 +59,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 	},
 }))
 
-function Header() {
+export default function Header() {
 	const user = useSelector((global) => (global ? global.user : null))
 	const [anchorElUser, setAnchorElUser] = useState(null)
 	const location = useLocation()
@@ -191,5 +191,3 @@ function Header() {
 		</AppBar>
 	)
 }
-
-export default Header

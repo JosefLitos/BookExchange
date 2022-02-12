@@ -5,7 +5,7 @@ import axios from "axios"
 import Book from "./Book"
 import { Grid, Button, Typography } from "@mui/material"
 
-function BookList(props) {
+export default function BookList(props) {
 	const user = props.forUser || useSelector((global) => (global ? global.user : null))
 	const location = useLocation()
 	const [searchParams] = useSearchParams()
@@ -24,9 +24,11 @@ function BookList(props) {
 			{books == null ? (
 				""
 			) : books.length === 0 ? (
-				<Typography variant="subtitle">
+				<Typography variant="h6">
 					{props.forUser
-						? "Vyhledanému textu neodpovídají žádné knihy"
+						? props.forUser
+							? "Zdá se, že nenabízíte žádné knihy, pojďme to napravit:"
+							: "Vyhledanému textu neodpovídají žádné knihy:"
 						: "Buďte první, kdo nabídne učebnici."}
 					<Link to="/commit">
 						<Button variant="contained" sx={{ ml: 1 }} size="small">
@@ -56,5 +58,3 @@ function BookList(props) {
 		</Grid>
 	)
 }
-
-export default BookList
