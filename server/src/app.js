@@ -3,6 +3,7 @@ const passport = require("passport")
 require("dotenv").config({ path: "./.env" })
 
 module.exports = (app) => {
+	const notification = require("./services/notification")
 	require("./services/passport-config")
 
 	app.use(
@@ -20,4 +21,9 @@ module.exports = (app) => {
 	require("./routes/book")(app)
 	require("./routes/user")(app)
 	require("./routes/request")(app)
+	app.post("/api/notify", (req, res) =>
+		notification.create(req.user, req.query.q).then((ok) => res.send({ success: ok }))
+	)
+	//TODO: remove this before final version
+	// app.get("/api/mail", (req, res)=>res.send(require("./services/mail").notifyAboutBook("invisiblemancz@gmail.com",{id: 13, name:"Ahoj, tady nejaka kniha"})))
 }

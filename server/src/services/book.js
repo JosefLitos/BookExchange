@@ -1,10 +1,13 @@
 const query = require("./sql")(process.env.MYSQL_DB)
 const fs = require("fs")
 const path = require("./path")
+const notification = require("./notification")
 
 function all(user, q) {
-	if (!user) return query("SELECT * FROM book ORDER BY cost;", null, true)
-	if (!q) return query("SELECT * FROM book WHERE owner_id!=? ORDER BY cost;", [user.id], true)
+	if (!q)
+		return user
+			? query("SELECT * FROM book WHERE owner_id!=? ORDER BY cost;", [user.id], true)
+			: query("SELECT * FROM book ORDER BY cost;", null, true)
 
 	console.log(`Searching for: '${q}'`)
 	if (!user) return query("SELECT * FROM book WHERE name LIKE ? ORDER BY cost;", [`%${q}%`], true)
@@ -19,11 +22,17 @@ async function get(id) {
 	return (await query("SELECT * from book WHERE id=?;", [id]))[0]
 }
 
-function add(book, user) {
-	return query(
+async function add(book, user) {
+	let res = await query(
 		"INSERT INTO book (owner_id, name, author, year, cost, description) VALUES (?, ?, ?, ?, ?, ?);",
-		[user.id, book.name, book.author, book.year, book.cost, book.description || null]
+		[user.id, book.name, book.author, book.year, book.cost, book.description || null],
+		true
 	)
+	if (res.affectedRows == 1) {
+		book.id = res.insertId
+		notification.checkAndNotify(book)
+	}
+	return res
 }
 
 async function update(bookId, updated, user) {
@@ -47,7 +56,10 @@ async function update(bookId, updated, user) {
 		toAdd[0] += ", year=?"
 		toAdd[1].push(updated.year)
 	}
-	if (updated.description != book.description) {
+	if (
+		updated.description != book.description &&
+		!(!updated.description == true && !book.description == true)
+	) {
 		toAdd[0] += ", description=?"
 		toAdd[1].push(updated.description || null)
 	}

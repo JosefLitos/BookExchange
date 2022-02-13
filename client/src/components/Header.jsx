@@ -67,9 +67,9 @@ export default function Header() {
 	let query = params.get("q")
 	const navigate = useNavigate()
 	useEffect(() => {
-		if (query && query.length >= 64) navigate({ search: null })
+		if (query && query.length > 128) navigate({ search: null })
 	}, [])
-	const [searchText, setSearchText] = useState(!query || query.length >= 64 ? "" : query)
+	const [searchText, setSearchText] = useState(!query || query.length > 128 ? "" : query)
 
 	function handleOpenUserMenu(e) {
 		setAnchorElUser(e.currentTarget)
@@ -93,7 +93,7 @@ export default function Header() {
 	}
 
 	function updateSearch(e) {
-		if (e.target.value.length < 64) setSearchText(e.target.value)
+		if (e.target.value.length <= 128) setSearchText(e.target.value)
 		e.preventDefault()
 	}
 

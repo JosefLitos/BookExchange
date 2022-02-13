@@ -10,6 +10,7 @@ if (process.env.NODE_ENV === "production") {
 	app.get("*", (req, res) =>
 		res.sendFile(path.resolve(__dirname, "..", "client", "build", "index.html"))
 	)
-}
+	app.get("/api/img", express.static("../client/build/public/img"))
+} 
 
 app.listen(PORT, () => console.log("server running on " + PORT))

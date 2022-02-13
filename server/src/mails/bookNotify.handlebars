@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<style>
+		body {
+			padding: 10px;
+		}
+
+		h1 {
+			text-align: center;
+			margin: 0;
+		}
+
+		h2 {
+			text-align: left;
+		}
+
+		a:visited,
+		a:link,
+		a:active {
+			color: black;
+			text-decoration: none;
+			border-radius: 5px;
+			padding: 7px 10px;
+			background-color: #559915;
+			font-size: 25px;
+			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Někdo přidal knihu, kterou jste možná hledali.</h1>
+	<div style="text-align:center;margin:30px;">
+		<div style="border-radius:10px;box-shadow:0 4px 8px 0 rgba(0,0,0,0.2);display:inline-block;width:300px;">
+			<img src="{{domain}}/img/books/{{book.id}}.jpg" style="width:300px;margin:0
+		auto;display:block;">
+			<h2 style="margin:5px;font-weight:normal;">{{book.name}}</h2>
+			<h2 style="margin:5px 5px 5px 30px;font-weight:normal;color:grey;">{{book.cost}} Kč</h2>
+			</img>
+		</div>
+	</div>
+	<div style="text-align:center;display:block;">
+		<a href="{{domain}}/book/{{book.id}}">Zobrazit knihu</a>
+	</div>
+	<div style="margin-top:50px;width:20ch;text-align:center;">
+		<img src="{{domain}}/img/logo.png" style="width:150px;margin:2px;" />
+		<h3 style="margin:0;">Bazar Učebnic Arabská</h3>
+	</div>
+</body>
+
+</html>

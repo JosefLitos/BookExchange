@@ -12,7 +12,7 @@ CREATE TABLE `book_exchange`.`book` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT ,
 	`owner_id` VARCHAR(32) NOT NULL ,
 	`cost` INT(4) NOT NULL ,
-	`name` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL ,
+	`name` VARCHAR(128) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL ,
 	`author` VARCHAR(128) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL ,
 	`year` INT(4) NOT NULL ,
 	`description` VARCHAR(512) CHARACTER SET utf8 COLLATE utf8_czech_ci NULL DEFAULT NULL ,
@@ -34,5 +34,16 @@ CREATE TABLE `book_exchange`.`request` (
 	  ON DELETE CASCADE,
 	CONSTRAINT `fk_customer`
 	  FOREIGN KEY (customer_id) REFERENCES user (id)
+	  ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE `book_exchange`.`notification` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT ,
+	`query` VARCHAR(128) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL ,
+	`user_id` VARCHAR(32) NOT NULL ,
+	`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+	PRIMARY KEY (`id`),
+	CONSTRAINT `fk_user`
+	  FOREIGN KEY (user_id) REFERENCES user (id)
 	  ON DELETE CASCADE
 ) ENGINE = InnoDB;

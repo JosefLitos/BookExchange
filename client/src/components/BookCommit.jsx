@@ -10,7 +10,7 @@ import { connect } from "react-redux"
 
 const formPrompts = {
 	//id,   prompt,  type,  maxVal, isOptional
-	name: ["Název", "text", 64],
+	name: ["Název", "text", 128],
 	author: ["Autor", "text", 128],
 	year: ["Rok", "number", new Date().getFullYear()],
 	cost: ["Cena", "number", 9999],
@@ -40,10 +40,12 @@ class BookCommit extends React.Component {
 		// SOURCE: https://www.freecodecamp.org/news/react-changing-state-of-child-component-from-parent-8ab547436271/
 		this.preview = React.createRef()
 		if (props.params && props.params.id)
-			axios.get(`/api/book/${props.params.id}`).then((res) => {
-				if (!res.data.description) res.data.description = ""
-				this.setState({ ...res.data, editing: true })
-				this.preview.current.setState({ ...res.data })
+			axios.get(`/api/book/${props.params.id}/edit`).then((res) => {
+				if (res.data) {
+					if (!res.data.description) res.data.description = ""
+					this.setState({ ...res.data, editing: true })
+					this.preview.current.setState({ ...res.data })
+				}
 			})
 
 		this.handleChange = this.handleChange.bind(this)

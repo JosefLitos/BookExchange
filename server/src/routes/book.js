@@ -8,9 +8,15 @@ module.exports = (app) => {
 		book.all(req.user, req.query.q).then((result) => res.send(result))
 	)
 
-	app.get("/api/book/:id", (req, res) => {
-		book.get(req.params.id).then((result) => res.send(result))
+	app.get("/api/book/:id/edit", (req, res) => {
+		book
+			.get(req.params.id)
+			.then((result) =>
+				res.send(req.user && result && result.owner_id == req.user.id ? result : false)
+			)
 	})
+
+	app.get("/api/book/:id", (req, res) => book.get(req.params.id).then((result) => res.send(result)))
 
 	// SOURCE: https://stackoverflow.com/a/31532067/12174842
 	app.post("/api/book", upload.array("picRaw"), (req, res) => {

@@ -9,47 +9,66 @@ export default function BookList(props) {
 	const user = props.forUser || useSelector((global) => (global ? global.user : null))
 	const location = useLocation()
 	const [searchParams] = useSearchParams()
-	const [books, setBooks] = useState([])
+	const [state, setState] = useState({ query: false, books: null })
+	const [noteColor, setNoteColor] = useState("primary")
 	useEffect(() => {
 		let q = searchParams.get("q")
-		if (q && q.length >= 64) return
+		if (q && q.length > 128) return
 		axios
 			.get(`/api${props.forUser ? "/user/" : "/"}books/${location.search}`)
-			.then((res) => setBooks(res.data))
+			.then((res) => setState({ query: q, books: res.data }))
 			.catch((err) => console.error(err))
 	}, [searchParams])
 
+	function createNote() {
+		axios
+			.post(`/api/notify${location.search}`)
+			.then((res) => setNoteColor(res.data.success ? "success" : "error"))
+	}
+
 	return (
 		<Grid container justifyContent="center" sx={{ "& > :not(style)": { m: 1 } }}>
-			{books == null ? (
+			{state.books == null ? (
 				""
-			) : books.length === 0 ? (
+			) : state.books.length === 0 ? (
 				<Typography variant="h6">
 					{props.forUser
-						? props.forUser
-							? "Zdá se, že nenabízíte žádné knihy, pojďme to napravit:"
-							: "Vyhledanému textu neodpovídají žádné knihy:"
-						: "Buďte první, kdo nabídne učebnici."}
-					<Link to="/commit">
-						<Button variant="contained" sx={{ ml: 1 }} size="small">
+						? state.query
+							? "Vyhledanému textu neodpovídají žádné knihy:"
+							: "Zdá se, že nenabízíte žádné knihy, pojďme to napravit:"
+						: state.query && user
+						? "Hledaná kniha nenalezena. Informujte se, až se kniha objeví:"
+						: "Buďte první, kdo nabídne učebnici:"}
+					{!props.forUser && state.query && user ? (
+						<Button
+							onClick={createNote}
+							variant="contained"
+							sx={{ ml: 1 }}
+							size="small"
+							color={noteColor}
+						>
+							Upozornit při dostupnosti
+						</Button>
+					) : (
+						<Button component={Link} to="/commit" variant="contained" sx={{ ml: 1 }} size="small">
 							Přidat knihu
 						</Button>
-					</Link>
+					)}
 				</Typography>
 			) : props.forUser ? (
-				books.map((book) => (
+				state.books.map((book) => (
 					<div key={book.id}>
 						<Book data={book} owned />
 					</div>
 				))
 			) : user ? (
-				books.map((book) => (
+				state.books.map((book) => (
 					<div key={book.id}>
 						<Book key={book.id} data={book} requestable />
 					</div>
 				))
 			) : (
-				books.map((book) => (
+				state.books.map((book) => (
 					<div key={book.id}>
 						<Book key={book.id} data={book} />
 					</div>
