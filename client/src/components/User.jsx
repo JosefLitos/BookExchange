@@ -6,7 +6,6 @@ import BookList from "./BookList"
 import Requests from "./Requests"
 import Requested from "./Requested"
 
-//TODO: attach searchbar for searching through owned books
 export default function User() {
 	const navigate = useNavigate()
 	const dispatch = useDispatch()

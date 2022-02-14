@@ -24,6 +24,4 @@ module.exports = (app) => {
 	app.post("/api/notify", (req, res) =>
 		notification.create(req.user, req.query.q).then((ok) => res.send({ success: ok }))
 	)
-	//TODO: remove this before final version
-	// app.get("/api/mail", (req, res)=>res.send(require("./services/mail").notifyAboutBook("invisiblemancz@gmail.com",{id: 13, name:"Ahoj, tady nejaka kniha"})))
 }

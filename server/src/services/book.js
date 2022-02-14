@@ -1,7 +1,4 @@
 const query = require("./sql")(process.env.MYSQL_DB)
-const fs = require("fs")
-const path = require("./path")
-const notification = require("./notification")
 
 function all(user, q) {
 	if (!q)
@@ -19,19 +16,16 @@ function all(user, q) {
 }
 
 async function get(id) {
-	return (await query("SELECT * from book WHERE id=?;", [id]))[0]
+	return (await query("SELECT * from book WHERE id=?;", [id], true))[0]
 }
 
-async function add(book, user) {
+async function create(book, user) {
 	let res = await query(
 		"INSERT INTO book (owner_id, name, author, year, cost, description) VALUES (?, ?, ?, ?, ?, ?);",
 		[user.id, book.name, book.author, book.year, book.cost, book.description || null],
 		true
 	)
-	if (res.affectedRows == 1) {
-		book.id = res.insertId
-		notification.checkAndNotify(book)
-	}
+	book.id = res.insertId
 	return res
 }
 
@@ -69,36 +63,20 @@ async function update(bookId, updated, user) {
 	return query(toAdd[0], [...toAdd[1], bookId])
 }
 
-async function remove(bookId, owner) {
+function remove(bookId, owner) {
 	if (owner && owner.id && owner.name && owner.icon) {
-		let res = await query("DELETE FROM book WHERE id=? AND owner_id=?;", [bookId, owner.id])
-		if (res.affectedRows == 1) {
-			fs.unlink(path(`img/books/${bookId}.jpg`), (err) => {
-				if (!err) return
-				console.log(`Book ${bookId} photo wasn't removed:`)
-				console.log(err)
-			})
-			return res
-		} else return res
+		return query("DELETE FROM book WHERE id=? AND owner_id=?;", [bookId, owner.id])
 	}
 }
 
-async function requestsFor(bookId, user) {
-	if (
-		!bookId ||
-		!user ||
-		!user.id ||
-		(await query("SELECT id FROM book WHERE id=? AND owner_id=?;", [bookId, user.id])).length == 0
-	)
-		return
-	return await query("SELECT * FROM request WHERE book_id=?;", [bookId])
+function requestsWithEmail(bookId) {
+	return bookId
+		? query(
+				"SELECT request.*, user.email FROM request INNER JOIN user ON customer_id=user.id WHERE book_id=?;",
+				[bookId],
+				true
+		  )
+		: []
 }
 
-module.exports = {
-	all,
-	get,
-	add,
-	update,
-	remove,
-	requestsFor,
-}
+module.exports = { all, get, create, update, remove, requestsWithEmail }

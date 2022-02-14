@@ -56,4 +56,8 @@ function books(user, search) {
 	)
 }
 
-module.exports = { login, remove, books }
+function info(userId) {
+	if (userId) return query("SELECT * FROM user WHERE id=?;", [userId], true).then((res) => res[0])
+}
+
+module.exports = { login, remove, books, info }

@@ -1,31 +1,44 @@
 const request = require("../services/request")
+const mail = require("../services/mail")
 
 module.exports = (app) => {
 	app.post("/api/request", (req, res) => {
 		request.create(req.body.book_id, req.user).then((result) => {
 			if (!result) res.status(400).send({ success: false })
-			else res.send({ success: true })
+			else {
+				mail.sendRequest(req.body.book_id)
+				res.send({ success: true })
+			}
 		})
 	})
 
 	app.delete("/api/request/:id", (req, res) => {
 		request.remove(req.params.id, req.user).then((result) => {
 			if (!result) res.status(400).send({ success: false })
-			else res.send({ success: true })
+			else {
+				mail.requestDeclined(result)
+				res.send({ success: true })
+			}
 		})
 	})
 
 	app.post("/api/request/:id/abort", (req, res) => {
 		request.abort(req.params.id, req.user).then((result) => {
 			if (!result) res.status(400).send({ success: false })
-			else res.send({ success: true })
+			else {
+				mail.requestAborted(result.book_id)
+				res.send({ success: true })
+			}
 		})
 	})
 
 	app.patch("/api/request/:id/accept", (req, res) => {
-		request.accept(req.params.id, req.user).then((result) => {
-			if (!result) res.status(400).send({ success: false })
-			else res.send({ success: true })
+		request.accept(req.params.id, req.user).then((bookData) => {
+			if (!bookData) res.status(400).send({ success: false })
+			else {
+				mail.requestAccepted(req.user, bookData.customer_id, bookData)
+				res.send({ success: true })
+			}
 		})
 	})
 

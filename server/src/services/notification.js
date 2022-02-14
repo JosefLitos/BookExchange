@@ -35,9 +35,9 @@ function findByBook(book) {
 async function checkAndNotify(book) {
 	let user = (await findByBook(book))[0]
 	if (user && user.id != book.owner_id) {
-		mail.notifyAboutBook(user.email, book)
+		mail.bookNotify(user.email, book)
 		remove(user.note_id)
 	}
 }
 
-module.exports = { create, remove, removeOld, findByBook, checkAndNotify }
+module.exports = { create, removeOld, checkAndNotify }
