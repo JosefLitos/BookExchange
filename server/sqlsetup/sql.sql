@@ -11,7 +11,7 @@ CREATE TABLE `book_exchange`.`user` (
 CREATE TABLE `book_exchange`.`book` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT ,
 	`owner_id` VARCHAR(32) NOT NULL ,
-	`cost` INT(4) NOT NULL ,
+	`cost` INT(3) NOT NULL ,
 	`name` VARCHAR(128) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL ,
 	`author` VARCHAR(128) CHARACTER SET utf8 COLLATE utf8_czech_ci NOT NULL ,
 	`year` INT(4) NOT NULL ,

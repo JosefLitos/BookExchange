@@ -13,7 +13,7 @@ const formPrompts = {
 	name: ["Název", "text", 128],
 	author: ["Autor", "text", 128],
 	year: ["Rok", "number", new Date().getFullYear()],
-	cost: ["Cena", "number", 9999],
+	cost: ["Cena", "number", 999],
 	description: ["Popisek knihy", "text", 512, true],
 }
 
