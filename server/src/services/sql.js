@@ -1,8 +1,10 @@
 const sql = require("mariadb")
+const dbs = {}
 
 // SOURCE: - https://www.npmjs.com/package/mariadb
 
 module.exports = function create(dbName) {
+	if (dbs[dbName]) return dbs[dbName]
 	let pool = sql.createPool({
 		port: process.env.MYSQL_PORT,
 		server: process.env.MYSQL_HOST,
@@ -11,7 +13,7 @@ module.exports = function create(dbName) {
 		database: dbName,
 		connectionLimit: 5,
 	})
-	return (query, params, nodebug) =>
+	return (dbs[dbName] = (query, params, nodebug) =>
 		new Promise(async (resolve, reject) => {
 			let conn
 			try {
@@ -26,5 +28,5 @@ module.exports = function create(dbName) {
 			} finally {
 				if (conn) conn.release()
 			}
-		})
+		}))
 }
