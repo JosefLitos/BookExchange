@@ -2,60 +2,53 @@
 <html>
 
 <head>
-	<style>
-		body {
-			padding: 10px;
-		}
+  <style>
+    body {padding: 10px;text-align: center;}
+    body * {margin: auto;}
 
-		h2 {
-			text-align: center;
-			margin: 0;
-		}
+    h2 {text-align: center;margin: 0;}
+    h3 {text-align: left;margin: 5px;}
 
-		h3 {
-			text-align: left;
-			margin: 5px;
-		}
+    card {
+      border-radius: 10px;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      display: inline-block;
+      width: 300px;
+    }
 
-		card {
-			border-radius: 10px;
-			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-			display: inline-block;
-			width: 300px;
-		}
-
-		a:visited,
-		a:link,
-		a:active {
-			color: black;
-			text-decoration: none;
-			border-radius: 5px;
-			padding: 7px 10px;
-			background-color: #2196f3;
-			font-size: 110%;
-			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-		}
-	</style>
+    a:visited,
+    a:link,
+    a:active {
+      color: black;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 5px;
+      padding: 7px 10px;
+      background-color: #2196f3;
+      font-size: 110%;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    }
+  </style>
 </head>
 
 <body>
-		<h2>{{header}}</h2>
-		<p style="text-align:center;">{{subtitle}}</p>
-	<div style="text-align:center;margin:30px;">
-		<card>
-			<img src="{{domain}}/img/books/{{book.id}}.jpg" style="width:300px;">
-			<h3 style="font-weight:normal;">{{book.name}}</h3>
-			<h3 style="margin-left:30px;font-weight:normal;color:grey;">{{book.cost}} Kč</h3>
-		</card>
-	</div>
-	</div>
-	<div style="text-align:center;display:block;">
-			<a href="{{href}}">{{btn}}</a>
-	</div>
-	<div style="margin-top:50px;width:20ch;text-align:center;">
-		<img src="{{domain}}/img/logo.png" style="width:150px;margin:2px;" />
-		<h4 style="margin:0;">Bazar Učebnic Arabská</h4>
-	</div>
+  <h2>{{header}}</h2>
+  <p>{{subtitle}}</p>
+  <div style="margin:30px;">
+    <card>
+      <img src="{{domain}}/img/books/{{book.id}}.jpg" style="width:300px;">
+      <h3 style="font-weight:normal;">{{book.name}}</h3>
+      <h3 style="margin-left:30px;font-weight:normal;color:grey;">{{book.cost}} Kč</h3>
+    </card>
+  </div>
+  </div>
+  <div style="display:block;">
+    <a href="{{href}}">{{btn}}</a>
+  </div>
+  <div style="margin-top:70px;width:12ch;">
+    <img src="{{domain}}/img/logo.png" style="width:100px;margin:2px;" />
+    <h4 style="margin:0;">Bazar Učebnic Arabská</h4>
+  </div>
 </body>
 
 </html>
