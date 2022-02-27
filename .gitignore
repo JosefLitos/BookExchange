@@ -2,3 +2,11 @@
 */package-lock.json
 server/.env
 client/public/img/books
+*.aux
+*.log
+*.lof
+*_minted-*
+*.toc
+*.bbl
+*.blg
+*.out
