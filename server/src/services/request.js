@@ -78,18 +78,18 @@ function removeOld() {
 	return query("DELETE FROM request WHERE created_at < (NOW() - INTERVAL 1 YEAR);")
 }
 
-function fromUser(user) {
+async function fromUser(user) {
 	if (user && user.id)
-		return query(
+		return await query(
 			"SELECT book_id, request.id, created_at, name, accepted FROM request INNER JOIN book ON book_id=book.id WHERE customer_id=?;",
 			[user.id],
 			true
 		)
 }
 
-function forUser(user) {
+async function forUser(user) {
 	if (user && user.id)
-		return query(
+		return await query(
 			"SELECT book_id, request.id, created_at, name, accepted FROM book INNER JOIN request ON book.id=book_id WHERE owner_id=? ORDER BY book_id, id;",
 			[user.id],
 			true
