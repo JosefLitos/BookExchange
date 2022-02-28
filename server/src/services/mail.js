@@ -17,6 +17,13 @@ mailer.use(
 	})
 )
 
+/**
+ * Send an email to a user
+ * @param {String} receiver recipient's email address
+ * @param {String} subj email subject
+ * @param {String} template one of the filenames under ../mails/
+ * @param {String[]} vars variables used in the template
+ */
 function mail(receiver, subj, template, vars) {
 	vars.domain = process.env.DOMAIN
 	mailer.sendMail(
@@ -34,6 +41,9 @@ function mail(receiver, subj, template, vars) {
 	)
 }
 
+/**
+ * Notify `receiver` about a book they were looking for.
+ */
 function bookNotify(receiver, bookData) {
 	mail(receiver, "Vámi hledaná kniha je dostupná", "template", {
 		book: bookData,
@@ -43,6 +53,9 @@ function bookNotify(receiver, bookData) {
 	})
 }
 
+/**
+ * Inform owner of `bookId` of a new incoming request.
+ */
 async function sendRequest(bookId) {
 	let bookData = await book.get(bookId)
 	let userData = await user.info(bookData.owner_id)
@@ -54,6 +67,9 @@ async function sendRequest(bookId) {
 	})
 }
 
+/**
+ * Inform owner of `bookId` of a request for their book being aborted.
+ */
 async function requestAborted(bookId) {
 	let bookData = await book.get(bookId)
 	let userData = await user.info(bookData.owner_id)
@@ -66,6 +82,9 @@ async function requestAborted(bookId) {
 	})
 }
 
+/**
+ * Inform originator of `request` that their request was declined.
+ */
 async function requestDeclined(request) {
 	let bookData = await book.get(request.book_id)
 	let userData = await user.info(request.customer_id)
@@ -78,6 +97,9 @@ async function requestDeclined(request) {
 	})
 }
 
+/**
+ * Inform originators of `requests` for given `bookData` of the book being removed.
+ */
 function bookRemoved(bookData, requests) {
 	requests.forEach((request) =>
 		mail(request.email, "Vyžádaná kniha byla odstraněna", "template", {
@@ -90,6 +112,9 @@ function bookRemoved(bookData, requests) {
 	)
 }
 
+/**
+ * Give `owner` and customer with `customerId` contact to each other to discuss the deal.
+ */
 async function requestAccepted(owner, customerId, bookData) {
 	let customer = await user.info(customerId)
 	mail(owner.email, "Přijali jste žádost o knihu", "template", {

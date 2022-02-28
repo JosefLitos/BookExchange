@@ -1,5 +1,8 @@
 const query = require("./sql")(process.env.MYSQL_DB)
 
+/**
+ * @returns {boolean} true if successful
+ */
 async function create(bookId, customer) {
 	if (
 		!bookId ||
@@ -26,6 +29,10 @@ async function create(bookId, customer) {
 	)
 }
 
+/**
+ * @param user owner of the book concerned in the request
+ * @returns {{book_id;customer_id}} data of removed request
+ */
 async function remove(requestId, user) {
 	if (requestId && user && user.id) {
 		let request = (
@@ -43,6 +50,10 @@ async function remove(requestId, user) {
 	}
 }
 
+/**
+ * Aborts the request made by `user`.
+ * @returns object with affectedRows value if successful
+ */
 async function abort(requestId, user) {
 	if (requestId && user && user.id) {
 		let request = (
@@ -56,6 +67,10 @@ async function abort(requestId, user) {
 	}
 }
 
+/**
+ * The `user` owning the book requested accepts the request.
+ * @returns object with affectedRows value if successful
+ */
 async function accept(requestId, user) {
 	if (requestId && user && user.id) {
 		let book = (
@@ -78,6 +93,9 @@ function removeOld() {
 	return query("DELETE FROM request WHERE created_at < (NOW() - INTERVAL 1 YEAR);")
 }
 
+/**
+ * @returns {{id;book_id;name;accepted;created_at}[]} all requests made by `user`
+ */
 async function fromUser(user) {
 	if (user && user.id)
 		return await query(
@@ -87,6 +105,9 @@ async function fromUser(user) {
 		)
 }
 
+/**
+ * @returns {{id;book_id;name;accepted;created_at}[]} all requests waiting for acceptation by `user`
+ */
 async function forUser(user) {
 	if (user && user.id)
 		return await query(

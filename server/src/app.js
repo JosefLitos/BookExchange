@@ -1,9 +1,9 @@
 const session = require("cookie-session")
 const passport = require("passport")
+const notification = require("./services/notification")
 require("dotenv").config({ path: "./.env" })
 
 module.exports = (app) => {
-	const notification = require("./services/notification")
 	require("./services/passport-config")
 
 	app.use(
@@ -18,6 +18,7 @@ module.exports = (app) => {
 	app.use(passport.session())
 	app.use(require("body-parser").json({ extended: true }))
 
+	// Registration of all available routes
 	require("./routes/book")(app)
 	require("./routes/user")(app)
 	require("./routes/request")(app)

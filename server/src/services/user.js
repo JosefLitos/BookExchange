@@ -2,6 +2,9 @@ const query = require("./sql")(process.env.MYSQL_DB)
 const path = require("./path")
 const fs = require("fs")
 
+/**
+ * @returns {{id;name;email;icon}} the same `user` or null, if they cannot log in
+ */
 async function login(user) {
 	if (!user || !user.id || !user.email) return null
 	let users = await query("SELECT * FROM user WHERE id=? AND email=?;", [user.id, user.email], true)
@@ -31,6 +34,9 @@ async function login(user) {
 		: user
 }
 
+/**
+ * @returns {boolean} true if successful
+ */
 async function remove(user) {
 	if (!user || !user.id || !user.email) return null
 	let books = await query("SELECT * FROM book WHERE owner_id=?;", [user.id])
@@ -47,6 +53,10 @@ async function remove(user) {
 	return true
 }
 
+/**
+ * @param {String} search query for filtering owned books
+ * @returns {Book[]} array of owned books (see book.js)
+ */
 function books(user, search) {
 	if (!search) return query("SELECT * FROM book WHERE owner_id=?;", [user.id], true)
 	return query(
@@ -56,6 +66,9 @@ function books(user, search) {
 	)
 }
 
+/**
+ * @returns {{id;name;email;icon}} all information about account with `userId`
+ */
 function info(userId) {
 	if (userId) return query("SELECT * FROM user WHERE id=?;", [userId], true).then((res) => res[0])
 }

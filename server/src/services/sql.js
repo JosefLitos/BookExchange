@@ -3,6 +3,9 @@ const dbs = {}
 
 // SOURCE: - https://www.npmjs.com/package/mariadb
 
+/**
+ * @returns {function query(q: String, params: array, noLog: boolean)} method for DB queries
+ */
 module.exports = function create(dbName) {
 	if (dbs[dbName]) return dbs[dbName]
 	let pool = sql.createPool({

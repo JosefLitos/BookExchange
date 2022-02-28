@@ -21,23 +21,21 @@ function removeOld() {
 	return query("DELETE FROM notification WHERE created_at < (NOW() - INTERVAL 1 YEAR);")
 }
 
-/*
-	Returns <user> if their notification has been resolved.
-*/
-function findByBook(book) {
-	return query(
-		"SELECT user.*, notification.id as note_id FROM user INNER JOIN notification ON ? LIKE CONCAT('%', query, '%') WHERE user_id=user.id;",
+/**
+ * Check if smn was searching for `book` and notify them of its presence.
+ */
+async function checkAndNotify(book) {
+	let users = await query(
+		"SELECT user.id, user.email, notification.id as note_id FROM user INNER JOIN notification ON ? LIKE CONCAT('%', query, '%') WHERE user_id=user.id;",
 		[book.name],
 		true
 	)
-}
-
-async function checkAndNotify(book) {
-	let user = (await findByBook(book))[0]
-	if (user && user.id != book.owner_id) {
-		mail.bookNotify(user.email, book)
-		remove(user.note_id)
-	}
+	users.forEach((user) => {
+		if (user && user.id != book.owner_id) {
+			mail.bookNotify(user.email, book)
+			remove(user.note_id)
+		}
+	})
 }
 
 module.exports = { create, removeOld, checkAndNotify }
