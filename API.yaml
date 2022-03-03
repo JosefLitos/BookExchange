@@ -1,0 +1,164 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "BookExchange"
+tags:
+  - name: "user"
+    description: "Vše řízené uživatelem"
+  - name: "book"
+    description: "Práce s knihami"
+  - name: "request"
+    description: "Manipulace s požadavky"
+schemes:
+  - "http"
+paths:
+  /user/login:
+    get:
+      tags:
+        - "user"
+      summary: "Příhlásí/Zaregistruje uživatele"
+      responses:
+        default:
+          description: ""
+  /user/gcallback:
+    get:
+      tags:
+        - "user"
+      summary: "Přesměrování po přihlášení"
+      responses:
+        default:
+          description: ""
+  /user/info:
+    get:
+      tags:
+        - "user"
+      summary: "Doplnění dat o uživateli"
+      responses:
+        default:
+          description: ""
+  /user/logout:
+    get:
+      tags:
+        - "user"
+      summary: "Odhlášení uživatele"
+      responses:
+        default:
+          description: ""
+  /user/books:
+    get:
+      tags:
+        - "user"
+      summary: "Všechny vlastněné knihy"
+      responses:
+        default:
+          description: ""
+  /user:
+    delete:
+      tags:
+        - "user"
+      summary: "Zrušení účtu uživatele"
+      responses:
+        default:
+          description: ""
+  /book:
+    post:
+      tags:
+        - "book"
+      summary: "Přidání knihy"
+      responses:
+        default:
+          description: ""
+  /book/$id:
+    patch:
+      tags:
+        - "book"
+      summary: "Upravení knihy"
+      responses:
+        default:
+          description: ""
+    get:
+      tags:
+        - "book"
+      summary: "Data dané knihy"
+      responses:
+        default:
+          description: ""
+    delete:
+      tags:
+        - "book"
+      summary: "Smazat knihu z bazaru"
+      responses:
+        default:
+          description: ""
+  /books:
+    get:
+      tags:
+        - "book"
+      summary: "Všechny knihy dostupné v bazaru"
+      responses:
+        default:
+          description: ""
+  /book/$id/edit:
+    get:
+      tags:
+        - "book"
+      summary: "Ověření práv ke knize"
+      responses:
+        default:
+          description: ""
+  /book/$id/requests:
+    get:
+      tags:
+        - "book"
+      summary: "Žádosti o danou knihu"
+      responses:
+        default:
+          description: ""
+  /request:
+    post:
+      tags:
+        - "request"
+      summary: "Zažádat o knihu"
+      responses:
+        default:
+          description: ""
+  /request/$id/accept:
+    patch:
+      tags:
+        - "request"
+      summary: "Přijmout příchozí žádost"
+      responses:
+        default:
+          description: ""
+  /request/$id:
+    delete:
+      tags:
+        - "request"
+      summary: "Zamítnout žádost o knihu"
+      responses:
+        default:
+          description: ""
+  /request/$id/abort:
+    post:
+      tags:
+        - "request"
+      summary: "Zrušit vlastní žádost"
+      responses:
+        default:
+          description: ""
+  /request/forMe:
+    get:
+      tags:
+        - "request"
+      summary: "Žádosti o moje knihy"
+      responses:
+        default:
+          description: ""
+  /request/fromMe:
+    get:
+      tags:
+        - "request"
+      summary: "Mé žádosti o knihy"
+      responses:
+        default:
+          description: ""
