@@ -1,7 +1,7 @@
 const session = require("cookie-session")
 const passport = require("passport")
-const notification = require("./services/notification")
 require("dotenv").config({ path: "./.env" })
+const notification = require("./services/notification")
 
 module.exports = (app) => {
 	require("./services/passport-config")
