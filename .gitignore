@@ -10,3 +10,5 @@ client/public/img/books
 *.bbl
 *.blg
 *.out
+*.snm
+*.nav
