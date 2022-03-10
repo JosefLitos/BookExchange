@@ -12,11 +12,12 @@ module.exports = (app) => {
 	)
 
 	app.get("/api/book/:id/edit", (req, res) => {
-		book
-			.get(req.params.id)
-			.then((result) =>
-				res.send(req.user && result && result.owner_id == req.user.id ? result : false)
-			)
+		book.get(req.params.id).then((result) => {
+			if (req.user && result && result.owner_id == req.user.id) {
+				delete result.owner_id
+				res.send(result)
+			} else res.send(false)
+		})
 	})
 
 	app.get("/api/book/:id", (req, res) => book.get(req.params.id).then((result) => res.send(result)))

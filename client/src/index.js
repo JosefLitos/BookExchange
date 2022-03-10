@@ -7,13 +7,15 @@ import { createStore } from "redux"
 
 // user variable is used in Header to determine login state
 const store = createStore((state = null, action) => {
+	if (!action.payload) action.payload = undefined
 	switch (action.type) {
 		case "LOGOUT":
 			if (state) delete state.user
 			return state
 		case "LOGIN":
 			if (!state) return { user: action.payload }
-			return { ...state, user: action.payload } || false
+			state.user = action.payload
+			return state
 		default:
 			return state
 	}
